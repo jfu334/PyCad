@@ -1,0 +1,10 @@
+{
+	"name": "CadSuite2",
+	"files":
+	[
+		{
+			"directory": ".", 
+			"filters": ["*.cc", "*.h", "*.sip", "*.py", "kateproject", "CMakeLists.txt"], "recursive": 1
+		}
+	]
+}

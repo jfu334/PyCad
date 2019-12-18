@@ -1,0 +1,4 @@
+__pycache__
+cpplib/py/out
+cpplib/py/PyCadCpp.sbf
+build/
