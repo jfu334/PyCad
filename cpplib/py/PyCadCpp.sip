@@ -107,168 +107,181 @@ namespace PyCadCpp
 		virtual TopoDS_Shape shape()=0;
 	};
 
-	class Vertex : public PyCadCpp::GeometryBase
+	namespace brep
 	{
-		%TypeHeaderCode
-		#include "objects.h"
-		%End
-		
-		public:
-			Vec3 vec() const;
-		private:
-			Vertex();
-	};
 	
-	class Edge : public PyCadCpp::GeometryBase
-	{
-		%TypeHeaderCode
-		#include "objects.h"
-		%End
-		
-		public:
-			std::vector<PyCadCpp::Vertex> vertices();
-		private:
-			Edge();
-	};
-	
-	class Face : public PyCadCpp::GeometryBase
-	{
-		%TypeHeaderCode
-		#include "objects.h"
-		%End
-		
-		public:
-			std::vector<PyCadCpp::Edge> edges();
-			std::vector<PyCadCpp::Vertex> vertices();
-		private:
-			Face();
-	};
-	
-	class ModellingObjectBase : public PyCadCpp::GeometryBase
-	{
-		%TypeHeaderCode
-		#include "objects.h"
-		%End
-		
-		public:
-			virtual TopoDS_Shape shape();
+		class Vertex : public PyCadCpp::GeometryBase
+		{
+			%TypeHeaderCode
+			#include "objects.h"
+			%End
 			
-			Color color();
-			void setColor(Color color);
+			public:
+				Vec3 vec() const;
+			private:
+				Vertex();
+		};
+		
+		class Edge : public PyCadCpp::GeometryBase
+		{
+			%TypeHeaderCode
+			#include "objects.h"
+			%End
 			
-			std::vector<PyCadCpp::Face> faces();
-			std::vector<PyCadCpp::Edge> edges();
-			std::vector<PyCadCpp::Vertex> vertices();
-	};
-	
-	class Solid : public PyCadCpp::ModellingObjectBase
-	{
-		%TypeHeaderCode
-		#include "objects.h"
-		%End
+			public:
+				std::vector<PyCadCpp::brep::Vertex> vertices();
+			private:
+				Edge();
+		};
 		
-		public:
-			Solid* copy();
-			Solid* translate(double x, double y, double z);
-			Solid* rotate(double x, double y, double z);
-			Solid* mirror(double x, double y, double z);
-		private:
-			Solid (TopoDS_Shape shape);
-	};
-	
-	class Shell : public PyCadCpp::ModellingObjectBase
-	{
-		%TypeHeaderCode
-		#include "objects.h"
-		%End
-		
-		public:
-			Shell* copy();
-			Shell* translate(double x, double y, double z);
-			Shell* rotate(double x, double y, double z);
-			Shell* mirror(double x, double y, double z);
-		private:
-			Shell (TopoDS_Shape shape);
-	};
-	
-	class Wire : public PyCadCpp::ModellingObjectBase
-	{
-		%TypeHeaderCode
-		#include "objects.h"
-		%End
-		
-		public:
-			Wire(Edge edge);
+		class Face : public PyCadCpp::GeometryBase
+		{
+			%TypeHeaderCode
+			#include "objects.h"
+			%End
 			
-			Wire* copy();
-			Wire* translate(double x, double y, double z);
-			Wire* rotate(double x, double y, double z);
-			Wire* mirror(double x, double y, double z);
-		private:
-			Wire (TopoDS_Shape shape);
+			public:
+				std::vector<PyCadCpp::brep::Edge> edges();
+				std::vector<PyCadCpp::brep::Vertex> vertices();
+			private:
+				Face();
+		};
+		
+		class Object : public PyCadCpp::GeometryBase
+		{
+			%TypeHeaderCode
+			#include "objects.h"
+			%End
+			
+			public:
+				enum class Type {Point, Wire, Shell, Solid};
+				
+				Object(Type type);
+				Object(Type type, TopoDS_Shape shape);
+				
+				virtual TopoDS_Shape shape();
+				
+				Color color();
+				void setColor(Color color);
+				
+				std::vector<PyCadCpp::brep::Face> faces();
+				std::vector<PyCadCpp::brep::Edge> edges();
+				std::vector<PyCadCpp::brep::Vertex> vertices();
+		};
+		
+		class Solid : public PyCadCpp::brep::Object
+		{
+			%TypeHeaderCode
+			#include "objects.h"
+			%End
+			
+			public:
+				Solid* copy();
+				Solid* translate(double x, double y, double z);
+				Solid* rotate(double x, double y, double z);
+				Solid* mirror(double x, double y, double z);
+			private:
+				Solid (TopoDS_Shape shape);
+		};
+		
+		class Shell : public PyCadCpp::brep::Object
+		{
+			%TypeHeaderCode
+			#include "objects.h"
+			%End
+			
+			public:
+				Shell(Face face);
+				
+				Shell* copy();
+				Shell* translate(double x, double y, double z);
+				Shell* rotate(double x, double y, double z);
+				Shell* mirror(double x, double y, double z);
+			private:
+				Shell (TopoDS_Shape shape);
+		};
+		
+		class Wire : public PyCadCpp::brep::Object
+		{
+			%TypeHeaderCode
+			#include "objects.h"
+			%End
+			
+			public:
+				Wire(Edge edge);
+				
+				Wire* copy();
+				Wire* translate(double x, double y, double z);
+				Wire* rotate(double x, double y, double z);
+				Wire* mirror(double x, double y, double z);
+			private:
+				Wire (TopoDS_Shape shape);
+		};
+		
+		class Point : public PyCadCpp::brep::Object
+		{
+			%TypeHeaderCode
+			#include "objects.h"
+			%End
+			
+			public:
+				Point* copy();
+				Point* translate(double x, double y, double z);
+				Point* rotate(double x, double y, double z);
+				Point* mirror(double x, double y, double z);
+			private:
+				Point(TopoDS_Shape shape);
+		};
 	};
 	
-	class Point : public PyCadCpp::ModellingObjectBase
-	{
-		%TypeHeaderCode
-		#include "objects.h"
-		%End
-		
-		public:
-			Point(Vec2 vec);
-			Point(Vec3 vec);
-			
-			Point* copy();
-			Point* translate(double x, double y, double z);
-			Point* rotate(double x, double y, double z);
-			Point* mirror(double x, double y, double z);
-		private:
-			Point(TopoDS_Shape shape);
-	};
-
+	
 	namespace gen
 	{
 		%TypeHeaderCode
 		#include "gen.h"
 		%End
 		
-		Solid* cube(
+
+		brep::Point* point_2d(Vec2 point);
+		brep::Point* point_3d(Vec3 point);
+		
+		brep::Solid* cube(
 			double lx, double ly, double lz, 
 			bool center=false, 
 			bool center_x=false, bool center_y=false, bool center_z=false);
 		
-		Solid* cylinder(
+		brep::Solid* cylinder(
 			double r=PyCadCpp::gen::NOT_SET, 
 			double d=PyCadCpp::gen::NOT_SET, 
 			double h=PyCadCpp::gen::NOT_SET);
 
-		Solid* sphere(
+		brep::Solid* sphere(
 			double r=PyCadCpp::gen::NOT_SET, double d=PyCadCpp::gen::NOT_SET);
 		
-		Solid* cone(
+		brep::Solid* cone(
 			double r1=PyCadCpp::gen::NOT_SET, double d1=PyCadCpp::gen::NOT_SET, 
 			double r2=PyCadCpp::gen::NOT_SET, double d2=PyCadCpp::gen::NOT_SET, 
 			double h=PyCadCpp::gen::NOT_SET);
 	
-		Shell* bezier_surface(int rows, int cols, std::vector<PyCadCpp::Vec3> points);
+		brep::Shell* bezier_surface(int rows, int cols, std::vector<PyCadCpp::Vec3> points);
 		
-		Wire* line_2d(std::vector<PyCadCpp::Vec2> points);
-		Wire* line_3d(std::vector<PyCadCpp::Vec3> points);
+		brep::Wire* line_2d(std::vector<PyCadCpp::Vec2> points);
+		brep::Wire* line_3d(std::vector<PyCadCpp::Vec3> points);
 		
-		Wire* bezier_2d(std::vector<PyCadCpp::Vec2> points);
-		Wire* bezier_3d(std::vector<PyCadCpp::Vec3> points);
+		brep::Wire* bezier_2d(std::vector<PyCadCpp::Vec2> points);
+		brep::Wire* bezier_3d(std::vector<PyCadCpp::Vec3> points);
 		
-		Wire* spline_2d(std::vector<PyCadCpp::Vec2> poles,
+		brep::Wire* spline_2d(std::vector<PyCadCpp::Vec2> poles,
 			std::vector<double> weights,
 			std::vector<double> knots,
 			int degree);
 		
-		Wire* spline_3d(std::vector<PyCadCpp::Vec3> poles,
+		brep::Wire* spline_3d(std::vector<PyCadCpp::Vec3> poles,
 			std::vector<double> weights,
 			std::vector<double> knots,
 			int degree);
 		
-		Wire* helix(
+		brep::Wire* helix(
 			double d,
 			double revolutions, 
 			double ascend);
@@ -276,7 +289,7 @@ namespace PyCadCpp
 		
 		enum class FontWeight {Regular, Bold, Italic, BoldItalic};
 		
-		Solid* text(
+		brep::Solid* text(
 			std::string fontFamily, FontWeight fontWeight, double size, double elevation,
 			std::string text);
 	};
@@ -287,35 +300,45 @@ namespace PyCadCpp
 		#include "op.h"
 		%End
 		
-		Shell* wireToShell(Wire* curve);
+		brep::Solid* fuse(brep::Solid* obj1, brep::Solid* obj2);
+		brep::Wire* fuse(brep::Wire* obj1, brep::Wire* obj2);
 		
-		Solid* fuse(Solid* obj1, Solid* obj2);
-		Solid* union_(Solid* obj1, Solid* obj2);
-		Solid* difference(Solid* obj1, Solid* obj2);
-		Solid* cut(Solid* obj1, Solid* obj2);
-		Solid* intersect(Solid* obj1, Solid* obj2);
+		brep::Solid* cut(brep::Solid* obj1, brep::Solid* obj2);
+		brep::Solid* common(brep::Solid* obj1, brep::Solid* obj2);
+
+		// name aliases like openscad
+		brep::Solid* union_(brep::Solid* obj1, brep::Solid* obj2);
+		brep::Wire* union_(brep::Wire* obj1, brep::Wire* obj2);
 		
-		Wire* fuse(Wire* obj1, Wire* obj2);
-		Wire* union_(Wire* obj1, Wire* obj2);
+		brep::Solid* difference(brep::Solid* obj1, brep::Solid* obj2);
+		brep::Solid* intersect(brep::Solid* obj1, brep::Solid* obj2);
 		
-		Shell* extrude_linear(Wire* surface, double h);
-		Shell* extrude_linear(Wire* surface, Vec3 direction);
 		
-		Solid* extrude_linear(Shell* surface, double h);
-		Solid* extrude_linear(Shell* surface, Vec3 direction);
+		brep::Shell* extrude_linear(brep::Wire* surface, double h);
+		brep::Shell* extrude_linear(brep::Wire* surface, Vec3 direction);
 		
-		Solid* extrude_rotate(Shell* surface, double angle, Vec3 axis);
+		brep::Solid* extrude_linear(brep::Shell* surface, double h);
+		brep::Solid* extrude_linear(brep::Shell* surface, Vec3 direction);
 		
-		Shell* pipe_shell(Wire* profile, Wire* spine, Wire* spineNormal=nullptr);
-		Solid* pipe_solid(Wire* profile, Wire* spine, Wire* spineNormal=nullptr);
+		brep::Solid* extrude_rotate(brep::Shell* surface, double angle, Vec3 axis);
 		
-		Solid* fillet(Solid* solid, std::vector<PyCadCpp::Edge> edges, double size);
-		Solid* fillet(Solid* solid, std::vector<PyCadCpp::Edge> edges, std::vector<double> size);
+		brep::Shell* pipe_shell(brep::Wire* profile, brep::Wire* spine, brep::Wire* spineNormal=nullptr);
+		brep::Solid* pipe_solid(brep::Wire* profile, brep::Wire* spine, brep::Wire* spineNormal=nullptr);
 		
-		Solid* hollow(Solid* solid, std::vector<PyCadCpp::Face> openingFaces, 
-			double thickness, double tol=1e-3);
-			
-		Solid* heal(Solid* solid, double tol=1e-3);
+		std::vector<PyCadCpp::brep::Wire*> project_normal(brep::Wire* wire, brep::Shell* surface);
+		
+		std::vector<PyCadCpp::brep::Wire*> project_linear(brep::Wire* wire, brep::Shell* surface, Vec3 direction);
+		std::vector<PyCadCpp::brep::Wire*> project_point(brep::Wire* wire, brep::Shell* surface, Vec3 point);
+		
+		brep::Solid* fillet(brep::Solid* solid, 
+			std::vector<PyCadCpp::brep::Edge> edges, double size);
+		brep::Solid* fillet(brep::Solid* solid, 
+			std::vector<PyCadCpp::brep::Edge> edges, std::vector<double> size);
+		
+		brep::Solid* hollow(brep::Solid* solid, 
+			std::vector<PyCadCpp::brep::Face> openingFaces, double thickness, double tol=1e-3);
+		
+		brep::Solid* heal(brep::Solid* solid, double tol=1e-3);
 	};
 	
 	namespace calc
@@ -335,7 +358,7 @@ namespace PyCadCpp
 		#include "export.h"
 		%End
 		
-		void export_stl(std::string filename, Solid* object, double deflection);
+		void export_stl(std::string filename, brep::Solid* object, double deflection);
 	};
 	
 	namespace viewer
@@ -347,8 +370,8 @@ namespace PyCadCpp
 		class ViewObject
 		{
 		public:
-			ViewObject(PyCadCpp::ModellingObjectBase* object);
-			PyCadCpp::ModellingObjectBase* object();
+			ViewObject(PyCadCpp::GeometryBase* object);
+			PyCadCpp::GeometryBase* object();
 			
 			PyCadCpp::Color color();
 			void setColor(PyCadCpp::Color color);

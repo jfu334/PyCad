@@ -1,8 +1,12 @@
 #pragma once
 #include <string>
 #include <vector>
+
+#include <TopoDS_Wire.hxx>
 #include <TopoDS_Shape.hxx>
+
 #include <GeomAbs_Shape.hxx>
+
 #include "vec.h"
 
 namespace PyCadCpp::base
@@ -23,6 +27,8 @@ namespace PyCadCpp::base
 	TopoDS_Shape translate(TopoDS_Shape shape, double x, double y, double z);
 	TopoDS_Shape rotate(TopoDS_Shape shape, double x, double y, double z);
 	TopoDS_Shape mirror(TopoDS_Shape shape, double x, double y, double z);
+	
+	TopoDS_Wire shape_wire(TopoDS_Shape shape);
 	
 	
 }

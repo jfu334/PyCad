@@ -4,7 +4,7 @@
 
 namespace PyCadCpp::export_
 {
-	void export_stl(std::string filename, Solid* object, double deflection)
+	void export_stl(std::string filename, brep::Solid* object, double deflection)
 	{
 		auto makeMesh=BRepMesh_IncrementalMesh(object->shape(), deflection);
 		makeMesh.Perform();

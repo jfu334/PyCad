@@ -4,9 +4,13 @@
 
 #include <gp_Quaternion.hxx>
 #include <gp_Trsf.hxx>
+
+#include <TopoDS.hxx>
+
 #include <BRepBuilderAPI_Transform.hxx>
 #include <BRepBuilderAPI_GTransform.hxx>
 #include <BRepBuilderAPI_Copy.hxx>
+#include <BRepBuilderAPI_MakeWire.hxx>
 
 namespace PyCadCpp::base
 {
@@ -66,6 +70,21 @@ namespace PyCadCpp::base
 		auto opApi=BRepBuilderAPI_Transform(m);
 		opApi.Perform(shape, true);
 		return opApi.Shape();
+	}
+	
+	
+	TopoDS_Wire shape_wire(TopoDS_Shape shape)
+	{
+		if(shape.ShapeType()==TopAbs_EDGE)
+		{
+			auto makeWire=BRepLib_MakeWire();
+			makeWire.Add(TopoDS::Edge(shape));
+			return makeWire.Wire();
+		}
+		else if(shape.ShapeType()==TopAbs_WIRE)
+			return TopoDS::Wire(shape);
+		else
+			throw new base::Exception("Invalid shape type: "+shapeType(shape));
 	}
 	
 	std::string shapeType(TopoDS_Shape shape)

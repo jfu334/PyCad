@@ -2,15 +2,17 @@
 #include <cmath>
 
 
+#include <BRepBuilderAPI_MakeVertex.hxx>
+#include <BRepBuilderAPI_MakeWire.hxx>
+#include <BRepBuilderAPI_MakeEdge.hxx>
+#include <BRepBuilderAPI_MakeFace.hxx>
+
 #include <BRepPrimAPI_MakeBox.hxx>
 #include <BRepPrimAPI_MakeCylinder.hxx>
 #include <BRepPrimAPI_MakeCone.hxx>
 #include <BRepPrimAPI_MakeSphere.hxx>
 #include <BRepPrimAPI_MakePrism.hxx>
 
-#include <BRepBuilderAPI_MakeWire.hxx>
-#include <BRepBuilderAPI_MakeEdge.hxx>
-#include <BRepBuilderAPI_MakeFace.hxx>
 #include <Geom_BezierCurve.hxx>
 #include <Geom_BezierSurface.hxx>
 #include <Geom_BSplineCurve.hxx>
@@ -24,8 +26,6 @@
 #include <Font_BRepFont.hxx>
 #include <Font_BRepTextBuilder.hxx>
 #include <Font_FontMgr.hxx>
-
-
 #include <BRepLib.hxx>
 
 #include "base.h"
@@ -85,12 +85,21 @@ namespace PyCadCpp::gen
 		
 	}
 	
+	brep::Point* point_2d(Vec2 point)
+	{
+		return point_3d(Vec3(point.x(), point.y(), 0));
+	}
+	brep::Point* point_3d(Vec3 point)
+	{
+		auto shape=BRepBuilderAPI_MakeVertex(gp_Pnt(point.x(), point.y(), point.z()));
+		return new brep::Point(shape);
+	}
 	
-	Solid* cube(double lx, double ly, double lz, 
+	brep::Solid* cube(double lx, double ly, double lz, 
 		bool center, bool center_x, bool center_y, bool center_z)
 	{
 		auto makeApi=BRepPrimAPI_MakeBox(lx, ly, lz);
-		auto result=new Solid(makeApi.Solid());
+		auto result=new brep::Solid(makeApi.Solid());
 		
 		double tx=(center || center_x)? -lx/2: 0;
 		double ty=(center || center_y)? -ly/2: 0;
@@ -100,37 +109,37 @@ namespace PyCadCpp::gen
 		return result;
 	}
 	
-	Solid* cylinder(double r, double d, double h)
+	brep::Solid* cylinder(double r, double d, double h)
 	{
 		double value_r=radiusOrDiameter("", r, d);
 		checkIsSet("h", h);
 		
 		auto makeApi=BRepPrimAPI_MakeCylinder(value_r, h);
-		auto result=new Solid(makeApi.Solid());
+		auto result=new brep::Solid(makeApi.Solid());
 		return result;
 	}
 	
-	Solid* sphere(double r, double d)
+	brep::Solid* sphere(double r, double d)
 	{
 		double value_r=radiusOrDiameter("", r, d);
 		auto makeApi=BRepPrimAPI_MakeSphere(value_r);
-		auto result=new Solid(makeApi.Solid());
+		auto result=new brep::Solid(makeApi.Solid());
 		return result;
 	}
 	
-	Solid* cone(double r1, double d1, double r2, double d2, double h)
+	brep::Solid* cone(double r1, double d1, double r2, double d2, double h)
 	{
 		double value_r1=radiusOrDiameter("1", r1, d1);
 		double value_r2=radiusOrDiameter("2", r2, d2);
 		checkIsSet("h", h);
 		
 		auto makeApi=BRepPrimAPI_MakeCone(value_r1, value_r2, h);
-		auto result=new Solid(makeApi.Solid());
+		auto result=new brep::Solid(makeApi.Solid());
 		return result;
 	}
 	
 	
-	Shell* bezier_surface(int rows, int cols, std::vector<Vec3> points)
+	brep::Shell* bezier_surface(int rows, int cols, std::vector<Vec3> points)
 	{
 		// check array size
 		if(points.size()!=rows*cols)
@@ -143,22 +152,22 @@ namespace PyCadCpp::gen
 		
 		Handle(Geom_BezierSurface) surf=new Geom_BezierSurface(parr);
 		auto face=BRepBuilderAPI_MakeFace(surf, 1e-3).Face();
-		return new Shell(face);
+		return new brep::Shell(face);
 	}
 	
-	Wire* line_2d(std::vector<Vec2> points)
+	brep::Wire* line_2d(std::vector<Vec2> points)
 	{
 		std::vector<Vec3> p3d;
 		for(auto i: points) p3d.push_back(Vec3(i.x(), i.y(), 0));
 		return line_3d(p3d);
 	}
-	Wire* bezier_2d(std::vector<Vec2> points)
+	brep::Wire* bezier_2d(std::vector<Vec2> points)
 	{
 		std::vector<Vec3> p3d;
 		for(auto i: points) p3d.push_back(Vec3(i.x(), i.y(), 0));
 		return bezier_3d(p3d);
 	}
-	Wire* spline_2d(std::vector<Vec2> poles,
+	brep::Wire* spline_2d(std::vector<Vec2> poles,
 		std::vector<double> weights,
 		std::vector<double> knots,
 		int degree)
@@ -168,7 +177,7 @@ namespace PyCadCpp::gen
 		return spline_3d(p3d, weights, knots, degree);
 	}
 	
-	Wire* line_3d(std::vector<Vec3> points)
+	brep::Wire* line_3d(std::vector<Vec3> points)
 	{
 		auto makeApi=BRepBuilderAPI_MakeWire();
 		for(size_t i=0;i<points.size()-1;i++)
@@ -178,10 +187,10 @@ namespace PyCadCpp::gen
 				gp_Pnt(points[i+1].x(), points[i+1].y(), points[i+1].z())).Edge();
 			makeApi.Add(edge);
 		}
-		return new Wire(makeApi.Wire());
+		return new brep::Wire(makeApi.Wire());
 	}
 
-	Wire* bezier_3d(std::vector<Vec3> points)
+	brep::Wire* bezier_3d(std::vector<Vec3> points)
 	{
 		auto parr=TColgp_Array1OfPnt(1, points.size());
 		for(size_t i=0;i<points.size();i++)
@@ -193,10 +202,10 @@ namespace PyCadCpp::gen
 		auto makeWire=BRepBuilderAPI_MakeWire();
 		makeWire.Add(edge);
 		
-		return new Wire(makeWire.Wire());
+		return new brep::Wire(makeWire.Wire());
 	}
 	
-	Wire* spline_3d(std::vector<Vec3> poles,
+	brep::Wire* spline_3d(std::vector<Vec3> poles,
 		std::vector<double> weights,
 		std::vector<double> knots,
 		int degree)
@@ -242,10 +251,10 @@ namespace PyCadCpp::gen
 		auto makeWire=BRepBuilderAPI_MakeWire();
 		makeWire.Add(edge);
 		
-		return new Wire(makeWire.Wire());
+		return new brep::Wire(makeWire.Wire());
 	}
 	
-	Wire* helix(
+	brep::Wire* helix(
 		double d,
 		double revolutions, 
 		double ascend)
@@ -285,11 +294,11 @@ namespace PyCadCpp::gen
 			makeWire.Add(edge);
 		}
 		
-		return new Wire(makeWire.Wire());
+		return new brep::Wire(makeWire.Wire());
 	}
 	
 	
-	Solid* text(
+	brep::Solid* text(
 		std::string fontFamily, FontWeight fontWeight, double size, double elevation,
 		std::string text)
 	{
@@ -316,7 +325,7 @@ namespace PyCadCpp::gen
 		// extrude to object
 		auto makePrism=BRepPrimAPI_MakePrism(shape, gp_Vec(0, 0, elevation), false);
 		
-		return new Solid(makePrism.Shape());
+		return new brep::Solid(makePrism.Shape());
 		
 	}
 	

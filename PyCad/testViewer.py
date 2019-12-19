@@ -24,7 +24,7 @@ from PyCad.InteractiveViewer import InteractiveViewer
 viewer=InteractiveViewer()
 
 def showElement(obj_, view):
-	if(isinstance(obj_, PyCad.ModellingObjectBase)):
+	if(isinstance(obj_, PyCad.GeometryBase)):
 		vobj=PyCad.viewer.ViewObject(obj_)
 		vobj.setColor(obj_.color())
 		view.addObject(vobj)

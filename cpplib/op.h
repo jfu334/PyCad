@@ -5,57 +5,79 @@
 
 namespace PyCadCpp::op
 {
-	Shell* wireToShell(Wire* obj);
+	brep::Shell* wireToShell(brep::Wire* obj);
 	
 	//
 	// Boolean operations
 	//
 	
-	Solid* fuse(Solid* obj1, Solid* obj2);
-	Solid* union_(Solid* obj1, Solid* obj2);
+	brep::Solid* fuse(brep::Solid* obj1, brep::Solid* obj2);
+	brep::Wire* fuse(brep::Wire* obj1, brep::Wire* obj2);
 	
-	Solid* difference(Solid* obj1, Solid* obj2);
-	Solid* cut(Solid* obj1, Solid* obj2);
+	brep::Solid* cut(brep::Solid* obj1, brep::Solid* obj2);
+	brep::Solid* common(brep::Solid* obj1, brep::Solid* obj2);
+
+	// name aliases like openscad
+	brep::Solid* union_(brep::Solid* obj1, brep::Solid* obj2);
+	brep::Wire* union_(brep::Wire* obj1, brep::Wire* obj2);
 	
-	Solid* intersect(Solid* obj1, Solid* obj2);
+	brep::Solid* difference(brep::Solid* obj1, brep::Solid* obj2);
+	brep::Solid* intersect(brep::Solid* obj1, brep::Solid* obj2);
 	
-	Wire* fuse(Wire* obj1, Wire* obj2);
-	Wire* union_(Wire* obj1, Wire* obj2);
 	
 	//
 	// extrusions
 	//
 	
-	Shell* extrude_linear(Wire* surface, double h);
-	Shell* extrude_linear(Wire* surface, Vec3 direction);
+	brep::Shell* extrude_linear(brep::Wire* surface, double h);
+	brep::Shell* extrude_linear(brep::Wire* surface, Vec3 direction);
 	
-	Solid* extrude_linear(Shell* surface, double h);
-	Solid* extrude_linear(Shell* surface, Vec3 direction);
+	brep::Solid* extrude_linear(brep::Shell* surface, double h);
+	brep::Solid* extrude_linear(brep::Shell* surface, Vec3 direction);
 	
-	Solid* extrude_rotate(Shell* surface, double angle, Vec3 axis);
+	brep::Solid* extrude_rotate(brep::Shell* surface, double angle, Vec3 axis);
 	
 	//
-	// 
+	// piping
 	//
 	
-	Shell* pipe_shell(Wire* profile, Wire* spine, Wire* spineNormal=nullptr);
-	Solid* pipe_solid(Wire* profile, Wire* spine, Wire* spineNormal=nullptr);
+	brep::Shell* pipe_shell(brep::Wire* profile, brep::Wire* spine, brep::Wire* spineNormal=nullptr);
+	brep::Solid* pipe_solid(brep::Wire* profile, brep::Wire* spine, brep::Wire* spineNormal=nullptr);
+	
+	//
+	// projection
+	//
+	
+	// Projects a wire onto a surface using the surface normals. 
+	// Returns all resulting wires. 
+	std::vector<brep::Wire*> project_normal(brep::Wire* wire, brep::Shell* surface);
+	
+	// Projects a wire onto a surface along given direction. 
+	// Returns all found intersections. 
+	std::vector<brep::Wire*> project_linear(brep::Wire* wire, brep::Shell* surface, Vec3 direction);
+	
+	// Projects a wire onto a surface by making a point projection from point. 
+	// Returns all found intersections. 
+	std::vector<brep::Wire*> project_point(brep::Wire* wire, brep::Shell* surface, Vec3 point);
 	
 	
 	//
 	// other operations
 	//
 	
-	Solid* fillet(Solid* solid, std::vector<Edge> edges, double size);
-	Solid* fillet(Solid* solid, std::vector<Edge> edges, std::vector<double> size);
+	brep::Solid* fillet(brep::Solid* solid, 
+		std::vector<brep::Edge> edges, double size);
+	brep::Solid* fillet(brep::Solid* solid, 
+		std::vector<brep::Edge> edges, std::vector<double> size);
 	
-	Solid* hollow(Solid* solid, std::vector<Face> openingFaces, double thickness, double tol=1e-3);
+	brep::Solid* hollow(brep::Solid* solid, 
+		std::vector<brep::Face> openingFaces, double thickness, double tol=1e-3);
 	
 	//
 	// other stuff
 	//
 	
-	Solid* heal(Solid* solid, double tol=1e-3);
+	brep::Solid* heal(brep::Solid* solid, double tol=1e-3);
 	
 	
 }

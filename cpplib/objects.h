@@ -11,120 +11,152 @@
 
 namespace PyCadCpp
 {
+	// Base class for all geometry that can be visualized. 
 	struct GeometryBase
 	{
 		GeometryBase() {}
 		virtual TopoDS_Shape shape()=0;
 	};
 	
-	/*
-	 * Internal structure of objects
-	 */
-	
-	struct Vertex : public GeometryBase
+	// Objects represented by boundaries. 
+	namespace brep
 	{
-		Vertex(TopoDS_Vertex data) : _data(data) {}
-		Vec3 vec() const;
-		
-		TopoDS_Vertex _data;
-		virtual TopoDS_Shape shape() {return _data;}
-	};
 	
-	struct Edge : public GeometryBase
+		/*
+		* Internal structure of objects
+		*/
+		
+		struct Vertex : public GeometryBase
+		{
+			Vertex(TopoDS_Vertex data) : _data(data) {}
+			Vec3 vec() const;
+			
+			TopoDS_Vertex _data;
+			virtual TopoDS_Shape shape() {return _data;}
+		};
+		
+		struct Edge : public GeometryBase
+		{
+			Edge(TopoDS_Edge data) : _data(data) {}
+			std::vector<Vertex> vertices();
+			
+			TopoDS_Edge _data;
+			virtual TopoDS_Shape shape() {return _data;}
+		};
+		
+		struct Face : public GeometryBase
+		{
+			Face(TopoDS_Face data) : _data(data) {}
+			
+			std::vector<Edge> edges();
+			std::vector<Vertex> vertices();
+			
+			TopoDS_Face _data;
+			virtual TopoDS_Shape shape() {return _data;}
+		};
+		
+		
+		/*
+		* Modelling objects
+		*/
+		
+		// common root for all modelling objects
+		class Object : public GeometryBase
+		{
+		public:
+			enum class Type {Point, Wire, Shell, Solid};
+			
+			Object(Type type);
+			Object(Type type, TopoDS_Shape shape);
+			Object(const Object* other);
+			
+			// get internal structure
+			std::vector<Face> faces();
+			std::vector<Edge> edges();
+			std::vector<Vertex> vertices();
+			
+			// Color used for visual representation. 
+			Color color() const {return _color;}
+			Object* setColor(Color color) {_color=color; return this;}
+			
+			// Material used. Not used by visualization but only by export plugins. 
+			std::string material() const {return _material;}
+			Object* setMaterial(std::string material) {_material=material; return this;}
+			
+			// access to the underlying shape
+			virtual TopoDS_Shape shape() {return _shape;}
+			
+		protected:
+			
+			// internal methods for transformation
+			void intTranslate(double x, double y, double z);
+			void intRotate(double x, double y, double z);
+			void intMirror(double x, double y, double z);
+			
+			Type _type;
+			TopoDS_Shape _shape;
+			
+			Color _color;
+			std::string _material;
+		};
+		
+		class Solid : public Object
+		{
+		public:
+			Solid(TopoDS_Shape shape) : Object(Object::Type::Solid, shape) {}
+			Solid(const Solid* other) : Object(other) {}
+			
+			Solid* copy() {return new Solid(this);}
+			Solid* translate(double x, double y, double z) {intTranslate(x, y, z); return this;}
+			Solid* rotate(double x, double y, double z) {intRotate(x, y, z); return this;}
+			Solid* mirror(double x, double y, double z) {intMirror(x, y, z); return this;}
+		};
+		
+		class Shell : public Object
+		{
+		public:
+			Shell(TopoDS_Shape shape) : Object(Object::Type::Shell, shape) {}
+			Shell(const Shell* other) : Object(other) {}
+			Shell(Face face) : Object(Object::Type::Shell, face._data) {}
+			
+			Shell* copy() {return new Shell(this);}
+			Shell* translate(double x, double y, double z) {intTranslate(x, y, z); return this;}
+			Shell* rotate(double x, double y, double z) {intRotate(x, y, z); return this;}
+			Shell* mirror(double x, double y, double z) {intMirror(x, y, z); return this;}
+		};
+		
+		class Wire : public Object
+		{
+		public:
+			Wire(Edge edge);
+			
+			Wire(TopoDS_Shape shape) : Object(Object::Type::Wire, shape) {}
+			Wire(const Wire* other) : Object(other) {}
+			
+			Wire* copy() {return new Wire(this);}
+			Wire* translate(double x, double y, double z) {intTranslate(x, y, z); return this;}
+			Wire* rotate(double x, double y, double z) {intRotate(x, y, z); return this;}
+			Wire* mirror(double x, double y, double z) {intMirror(x, y, z); return this;}
+		};
+		
+		class Point : public Object
+		{
+		public:
+			Point(TopoDS_Shape shape) : Object(Object::Type::Point, shape) {}
+			Point(const Point* other) : Object(other) {}
+			
+			Point* copy() {return new Point(this);}
+			Point* translate(double x, double y, double z) {intTranslate(x, y, z); return this;}
+			Point* rotate(double x, double y, double z) {intRotate(x, y, z); return this;}
+			Point* mirror(double x, double y, double z) {intMirror(x, y, z); return this;}
+		};
+	}
+	
+	// Objects represented by numerical vertices, edges and faces. 
+	namespace mesh
 	{
-		Edge(TopoDS_Edge data) : _data(data) {}
-		std::vector<Vertex> vertices();
-		
-		TopoDS_Edge _data;
-		virtual TopoDS_Shape shape() {return _data;}
-	};
-	
-	struct Face : public GeometryBase
-	{
-		Face(TopoDS_Face data) : _data(data) {}
-		
-		std::vector<Edge> edges();
-		std::vector<Vertex> vertices();
-		
-		TopoDS_Face _data;
-		virtual TopoDS_Shape shape() {return _data;}
-	};
-	
-	
-	/*
-	 * Modelling objects
-	 */
-	
-	// next step:
-	enum class ObjectType {Point, Wire, Shell, Solid};
-	
-	
-	// common root for all modelling objects
-	class ModellingObjectBase : public GeometryBase
-	{
-	public:
-		virtual TopoDS_Shape shape() {return _shape;}
-		
-		Color color() {return _color;}
-		void setColor(Color color) {_color=color;}
-		
-		std::vector<Face> faces();
-		std::vector<Edge> edges();
-		std::vector<Vertex> vertices();
-	protected:
-		TopoDS_Shape _shape;
-		Color _color;
-	};
-	
-	class Solid : public ModellingObjectBase
-	{
-	public:
-		Solid(TopoDS_Shape shape);
-		
-		Solid* copy();
-		Solid* translate(double x, double y, double z);
-		Solid* rotate(double x, double y, double z);
-		Solid* mirror(double x, double y, double z);
-	};
-	
-	class Shell : public ModellingObjectBase
-	{
-	public:
-		Shell(TopoDS_Shape shape);
-		
-		Shell* copy();
-		Shell* translate(double x, double y, double z);
-		Shell* rotate(double x, double y, double z);
-		Shell* mirror(double x, double y, double z);
-	};
-	
-	class Wire : public ModellingObjectBase
-	{
-	public:
-		Wire(TopoDS_Shape shape);
-		Wire(Edge edge);
-		
-		TopoDS_Wire shape_wire();
-		
-		Wire* copy();
-		Wire* translate(double x, double y, double z);
-		Wire* rotate(double x, double y, double z);
-		Wire* mirror(double x, double y, double z);
-	};
-	
-	class Point : public ModellingObjectBase
-	{
-	public:
-		Point(TopoDS_Shape shape);
-		Point(Vec2 vec);
-		Point(Vec3 vec);
-		
-		Point* copy();
-		Point* translate(double x, double y, double z);
-		Point* rotate(double x, double y, double z);
-		Point* mirror(double x, double y, double z);
-	};
-	
+		// TODO
+	}
 	
 
 }

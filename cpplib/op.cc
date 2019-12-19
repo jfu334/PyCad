@@ -1,18 +1,20 @@
 #include "op.h"
-#include <TopoDS.hxx>
 
+#include <TopoDS.hxx>
+#include <TopExp_Explorer.hxx>
 
 #include <BRepAlgoAPI_Fuse.hxx>
 #include <BRepAlgoAPI_Cut.hxx>
 #include <BRepAlgoAPI_Common.hxx>
 
+#include <BRepProj_Projection.hxx>
 #include <BRepPrimAPI_MakePrism.hxx>
 #include <BRepPrimAPI_MakeRevol.hxx>
-
 #include <BRepBuilderAPI_MakeWire.hxx>
 #include <BRepBuilderAPI_MakeFace.hxx>
 
 #include <BRepFilletAPI_MakeFillet.hxx>
+#include <BRepOffsetAPI_NormalProjection.hxx>
 #include <BRepOffsetAPI_MakeThickSolid.hxx>
 #include <BRepOffsetAPI_MakeEvolved.hxx>
 #include <BRepOffsetAPI_MakePipe.hxx>
@@ -25,23 +27,31 @@
 
 namespace PyCadCpp::op
 {
-	Shell* wireToShell(Wire* obj)
+	// to make things easier
+	using namespace brep;
+	
+	Shell* wireToShell(brep::Wire* obj)
 	{
 		auto makeApi=BRepBuilderAPI_MakeFace(TopoDS::Wire(obj->shape()));
 		return new Shell(makeApi.Face());
 	}
 	
 	// aliases
-	Solid* union_(Solid* obj1, Solid* obj2) {return fuse(obj1, obj2);}
-	Wire* union_(Wire* obj1, Wire* obj2) {return fuse(obj1, obj2);}
-	Solid* cut(Solid* obj1, Solid* obj2) {return difference(obj1, obj2);}
-	
-	Solid* fuse(Solid* obj1, Solid* obj2)
+	brep::Solid* union_(brep::Solid* obj1, brep::Solid* obj2) {return fuse(obj1, obj2);}
+	brep::Wire* union_(brep::Wire* obj1, brep::Wire* obj2) {return fuse(obj1, obj2);}
+	brep::Solid* cut(brep::Solid* obj1, brep::Solid* obj2) {return difference(obj1, obj2);}
+
+	brep::Solid* common(brep::Solid* obj1, brep::Solid* obj2)
+	{
+		throw new base::Exception("Not implemented!");
+	}
+
+	brep::Solid* fuse(brep::Solid* obj1, brep::Solid* obj2)
 	{
 		auto makeApi=BRepAlgoAPI_Fuse(obj1->shape(), obj2->shape());
 		return new Solid(makeApi.Shape());
 	}
-	Wire* fuse(Wire* obj1, Wire* obj2)
+	brep::Wire* fuse(brep::Wire* obj1, brep::Wire* obj2)
 	{
 		auto makeApi=BRepBuilderAPI_MakeWire();
 		makeApi.Add(TopoDS::Wire(obj1->shape()));
@@ -49,22 +59,22 @@ namespace PyCadCpp::op
 		return new Wire(makeApi.Wire());
 	}
 	
-	Solid* difference(Solid* obj1, Solid* obj2)
+	brep::Solid* difference(brep::Solid* obj1, brep::Solid* obj2)
 	{
 		auto makeApi=BRepAlgoAPI_Cut(obj1->shape(), obj2->shape());
 		return new Solid(makeApi.Shape());
 	}
 	
-	Solid* intersect(Solid* obj1, Solid* obj2)
+	brep::Solid* intersect(brep::Solid* obj1, brep::Solid* obj2)
 	{
 		auto makeApi=BRepAlgoAPI_Common(obj1->shape(), obj2->shape());
 		return new Solid(makeApi.Shape());
 	}
 	
-	Shell* extrude_linear(Wire* curve, double h) {return extrude_linear(curve, Vec3(0, 0, h));}
-	Solid* extrude_linear(Shell* surface, double h) {return extrude_linear(surface, Vec3(0, 0, h));}
+	Shell* extrude_linear(brep::Wire* curve, double h) {return extrude_linear(curve, Vec3(0, 0, h));}
+	brep::Solid* extrude_linear(Shell* surface, double h) {return extrude_linear(surface, Vec3(0, 0, h));}
 	
-	Shell* extrude_linear(Wire* curve, Vec3 direction)
+	Shell* extrude_linear(brep::Wire* curve, Vec3 direction)
 	{
 		// extrude to object
 		gp_Vec vec(direction.x(), direction.y(), direction.z());
@@ -73,7 +83,7 @@ namespace PyCadCpp::op
 		return new Shell(makePrism.Shape());
 	}
 	
-	Solid* extrude_linear(Shell* surface, Vec3 direction)
+	brep::Solid* extrude_linear(Shell* surface, Vec3 direction)
 	{
 		// extrude to object
 		gp_Vec vec(direction.x(), direction.y(), direction.z());
@@ -82,48 +92,87 @@ namespace PyCadCpp::op
 		return new Solid(makePrism.Shape());
 	}
 	
-	Solid* extrude_rotate(Shell* shell, double angle, Vec3 axis)
+	brep::Solid* extrude_rotate(Shell* shell, double angle, Vec3 axis)
 	{
 		auto occ_axis=gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(axis.x(), axis.y(), axis.z()));
 		auto makeRevol=BRepPrimAPI_MakeRevol(shell->shape(), occ_axis, angle);
 		return new Solid(makeRevol.Shape());
 	}
 	
-	Shell* pipe_shell(Wire* profile, Wire* spine, Wire* spineNormal)
+	Shell* pipe_shell(brep::Wire* profile, brep::Wire* spine, brep::Wire* spineNormal)
 	{
-		auto makePipe=BRepOffsetAPI_MakePipeShell(spine->shape_wire());
+		auto makePipe=BRepOffsetAPI_MakePipeShell(base::shape_wire(spine->shape()));
 		
 		if(spineNormal!=nullptr)
-			makePipe.SetMode(spineNormal->shape_wire(), true);
+			makePipe.SetMode(base::shape_wire(spineNormal->shape()), true);
 		
-		makePipe.Add(profile->shape_wire());
+		makePipe.Add(base::shape_wire(profile->shape()));
 		makePipe.Build();
 		
 		return new Shell(makePipe.Shape());
 	}
-	Solid* pipe_solid(Wire* profile, Wire* spine, Wire* spineNormal)
+	brep::Solid* pipe_solid(brep::Wire* profile, brep::Wire* spine, brep::Wire* spineNormal)
 	{
-		auto makePipe=BRepOffsetAPI_MakePipeShell(spine->shape_wire());
+		auto makePipe=BRepOffsetAPI_MakePipeShell(base::shape_wire(spine->shape()));
 		
 		if(spineNormal!=nullptr)
-			makePipe.SetMode(spineNormal->shape_wire(), true);
+			makePipe.SetMode(base::shape_wire(spineNormal->shape()), true);
 		
-		makePipe.Add(profile->shape_wire());
+		makePipe.Add(base::shape_wire(profile->shape()));
 		makePipe.Build();
 		makePipe.MakeSolid();
 		
 		return new Solid(makePipe.Shape());
 	}
 	
+	std::vector<brep::Wire*> project_normal(brep::Wire* wire, brep::Shell* surface)
+	{
+		auto makeApi=BRepOffsetAPI_NormalProjection(surface->shape());
+		makeApi.Add(wire->shape());
+		makeApi.Build();
+		
+		TopTools_ListOfShape list;
+		if(!makeApi.BuildWire(list))
+			throw new base::Exception("Unable to perform! Result is not a single wire.");
+		
+		std::vector<brep::Wire*> result;
+		for(auto i: list) result.push_back(new brep::Wire(i));
+		
+		return result;
+	}
 	
-	Solid* fillet(Solid* solid, std::vector<Edge> edges, double size)
+	std::vector<brep::Wire*> project_linear(brep::Wire* wire, brep::Shell* surface, Vec3 direction)
+	{
+		auto makeApi=BRepProj_Projection(wire->shape(), surface->shape(), 
+			gp_Dir(direction.x(), direction.y(), direction.z()));
+		
+		std::vector<brep::Wire*> result;
+		for(;makeApi.More();makeApi.Next())
+			result.push_back(new Wire(makeApi.Current()));
+		
+		return result;
+	}
+	
+	std::vector<brep::Wire*> project_point(brep::Wire* wire, brep::Shell* surface, Vec3 point)
+	{
+		auto makeApi=BRepProj_Projection(wire->shape(), surface->shape(), 
+			gp_Pnt(point.x(), point.y(), point.z()));
+		
+		std::vector<brep::Wire*> result;
+		for(;makeApi.More();makeApi.Next())
+			result.push_back(new Wire(makeApi.Current()));
+		
+		return result;
+	}
+	
+	brep::Solid* fillet(brep::Solid* solid, std::vector<Edge> edges, double size)
 	{
 		std::vector<double> vsize;
 		for(auto i: edges) vsize.push_back(size);
 		return fillet(solid, edges, vsize);
 	}
 	
-	Solid* fillet(Solid* solid, std::vector<Edge> edges, std::vector<double> size)
+	brep::Solid* fillet(brep::Solid* solid, std::vector<Edge> edges, std::vector<double> size)
 	{
 		auto makeFillet=BRepFilletAPI_MakeFillet(solid->shape());
 		for(size_t i=0;i<size.size();i++)
@@ -142,7 +191,7 @@ namespace PyCadCpp::op
 		return new Solid(makeFillet.Shape());
 	}
 	
-	Solid* hollow(Solid* solid, std::vector<Face> openingFaces, double thickness, double tol)
+	brep::Solid* hollow(brep::Solid* solid, std::vector<Face> openingFaces, double thickness, double tol)
 	{
 		TopTools_ListOfShape facesToRemove;
 		for(auto i: openingFaces) facesToRemove.Append(i._data);
@@ -153,7 +202,7 @@ namespace PyCadCpp::op
 		return new Solid(makeHollow.Shape());
 	}
 	
-	Solid* heal(Solid* solid, double tol)
+	brep::Solid* heal(brep::Solid* solid, double tol)
 	{
 		auto sfs=ShapeFix_Shape(); 
 		sfs.Init(solid->shape()); 
