@@ -12,7 +12,7 @@ namespace PyCadCpp
 		
 		namespace
 		{
-			std::vector<TopoDS_Shape> collectOfType(TopoDS_Shape shape, TopAbs_ShapeEnum type)
+			std::vector<TopoDS_Shape> collectOfType(TopoDS_Shape& shape, TopAbs_ShapeEnum type)
 			{
 				std::vector<TopoDS_Shape> result;
 				for(TopExp_Explorer it(shape, type);it.More();it.Next())
@@ -20,7 +20,7 @@ namespace PyCadCpp
 				return result;
 			}
 			
-			std::vector<Face> collectFaces(TopoDS_Shape shape)
+			std::vector<Face> collectFaces(TopoDS_Shape& shape)
 			{
 				auto faces=collectOfType(shape, TopAbs_FACE);
 				
@@ -28,7 +28,7 @@ namespace PyCadCpp
 				for(auto i: faces) result.push_back(Face(TopoDS::Face(i)));
 				return result;
 			}
-			std::vector<Edge> collectEdges(TopoDS_Shape shape)
+			std::vector<Edge> collectEdges(TopoDS_Shape& shape)
 			{
 				auto edges=collectOfType(shape, TopAbs_EDGE);
 				
@@ -36,7 +36,7 @@ namespace PyCadCpp
 				for(auto i: edges) result.push_back(Edge(TopoDS::Edge(i)));
 				return result;
 			}
-			std::vector<Vertex> collectVertices(TopoDS_Shape shape)
+			std::vector<Vertex> collectVertices(TopoDS_Shape& shape)
 			{
 				auto vertices=collectOfType(shape, TopAbs_VERTEX);
 				
@@ -46,8 +46,15 @@ namespace PyCadCpp
 			}
 		}
 	
-		std::vector<Edge> Face::edges() {return collectEdges(_data);}
-		std::vector<Vertex> Face::vertices() {return collectVertices(_data);}
+		std::vector<Edge> Face::edges() 
+		{
+			return collectEdges(_data);
+		}
+		std::vector<Vertex> Face::vertices()
+		{
+			return collectVertices(_data);
+		}
+		
 		std::vector<Vertex> Edge::vertices() {return collectVertices(_data);}
 		
 		Vec3 Vertex::vec() const
@@ -64,7 +71,6 @@ namespace PyCadCpp
 		
 		Object::Object(Object::Type type, TopoDS_Shape shape)
 		{
-			
 			// DEBUG: Uncomment to allow any shape type in objects. 
 // 			if(true) {} else 
 			if(type==Object::Type::Solid)
@@ -76,7 +82,9 @@ namespace PyCadCpp
 			}
 			else if(type==Object::Type::Shell)
 			{
-				if(shape.ShapeType()!=TopAbs_SHELL && shape.ShapeType()!=TopAbs_FACE)
+				if(shape.ShapeType()!=TopAbs_SHELL 
+					&& shape.ShapeType()!=TopAbs_FACE
+					&& shape.ShapeType()!=TopAbs_COMPOUND)
 					throw base::Exception("Unsupported shape type: "+base::shapeType(shape));
 			}
 			else if(type==Object::Type::Wire)
@@ -116,7 +124,7 @@ namespace PyCadCpp
 		
 		Wire::Wire(Edge edge) : Object(Object::Type::Wire)
 		{
-			_shape=edge._data;
+			_shape=edge.shape();
 		}
 	
 	}

@@ -6,24 +6,22 @@
 namespace PyCadCpp::op
 {
 	brep::Shell* wireToShell(brep::Wire* obj);
+	brep::Solid* shellToSolid(brep::Shell* shell);
+	
+	// reverse orientation
+	brep::Shell* reverse(brep::Shell* shell);
 	
 	//
 	// Boolean operations
 	//
 	
 	brep::Solid* fuse(brep::Solid* obj1, brep::Solid* obj2);
+	brep::Shell* fuse(brep::Shell* obj1, brep::Shell* obj2);
 	brep::Wire* fuse(brep::Wire* obj1, brep::Wire* obj2);
 	
 	brep::Solid* cut(brep::Solid* obj1, brep::Solid* obj2);
 	brep::Solid* common(brep::Solid* obj1, brep::Solid* obj2);
 
-	// name aliases like openscad
-	brep::Solid* union_(brep::Solid* obj1, brep::Solid* obj2);
-	brep::Wire* union_(brep::Wire* obj1, brep::Wire* obj2);
-	
-	brep::Solid* difference(brep::Solid* obj1, brep::Solid* obj2);
-	brep::Solid* intersect(brep::Solid* obj1, brep::Solid* obj2);
-	
 	
 	//
 	// extrusions
@@ -69,6 +67,8 @@ namespace PyCadCpp::op
 		std::vector<brep::Edge> edges, double size);
 	brep::Solid* fillet(brep::Solid* solid, 
 		std::vector<brep::Edge> edges, std::vector<double> size);
+	
+	brep::Shell* filling(int degree, std::vector<brep::Wire*> bounds, std::vector<brep::Wire*> supports);
 	
 	brep::Solid* hollow(brep::Solid* solid, 
 		std::vector<brep::Face> openingFaces, double thickness, double tol=1e-3);

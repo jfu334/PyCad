@@ -31,8 +31,11 @@ namespace PyCadCpp
 			Vertex(TopoDS_Vertex data) : _data(data) {}
 			Vec3 vec() const;
 			
-			TopoDS_Vertex _data;
 			virtual TopoDS_Shape shape() {return _data;}
+			virtual TopoDS_Vertex shape_vertex() {return _data;}
+			
+		private:
+			TopoDS_Vertex _data;
 		};
 		
 		struct Edge : public GeometryBase
@@ -40,8 +43,11 @@ namespace PyCadCpp
 			Edge(TopoDS_Edge data) : _data(data) {}
 			std::vector<Vertex> vertices();
 			
-			TopoDS_Edge _data;
 			virtual TopoDS_Shape shape() {return _data;}
+			virtual TopoDS_Edge shape_edge() {return _data;}
+			
+		private:
+			TopoDS_Edge _data;
 		};
 		
 		struct Face : public GeometryBase
@@ -51,8 +57,11 @@ namespace PyCadCpp
 			std::vector<Edge> edges();
 			std::vector<Vertex> vertices();
 			
-			TopoDS_Face _data;
 			virtual TopoDS_Shape shape() {return _data;}
+			TopoDS_Face shape_face() {return _data;}
+			
+		private:
+			TopoDS_Face _data;
 		};
 		
 		
@@ -117,7 +126,7 @@ namespace PyCadCpp
 		public:
 			Shell(TopoDS_Shape shape) : Object(Object::Type::Shell, shape) {}
 			Shell(const Shell* other) : Object(other) {}
-			Shell(Face face) : Object(Object::Type::Shell, face._data) {}
+			Shell(Face face) : Object(Object::Type::Shell, face.shape()) {}
 			
 			Shell* copy() {return new Shell(this);}
 			Shell* translate(double x, double y, double z) {intTranslate(x, y, z); return this;}

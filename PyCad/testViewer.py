@@ -24,9 +24,18 @@ from PyCad.InteractiveViewer import InteractiveViewer
 viewer=InteractiveViewer()
 
 def showElement(obj_, view):
-	if(isinstance(obj_, PyCad.GeometryBase)):
+	if(isinstance(obj_, PyCad.brep.Object)):
 		vobj=PyCad.viewer.ViewObject(obj_)
 		vobj.setColor(obj_.color())
+		view.addObject(vobj)
+		
+	elif(isinstance(obj_, PyCad.GeometryBase)):
+		vobj=PyCad.viewer.ViewObject(obj_)
+		vobj.setColor(PyCad.Color(1, 1, 1, 1))
+		view.addObject(vobj)
+	elif(isinstance(obj_, PyCad.Vec3)):
+		vobj=PyCad.viewer.ViewObject(PyCad.gen.point_3d(obj_));
+		vobj.setColor(PyCad.Color(1, 0, 0, 1))
 		view.addObject(vobj)
 	elif(isinstance(obj_, PyCad.ObjectGroup)):
 		for i in obj_.objects():

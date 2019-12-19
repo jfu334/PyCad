@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.13)
 
 project(PyCadCpp)
 
-find_package(OpenCASCADE 7.3.0 REQUIRED)
+# find_package(OpenCASCADE 7.3.0 REQUIRED)
+find_package(/opt/occt/lib/cmake/opencascade/OpenCASCADE 7.4.0 REQUIRED)
+
 find_package(PythonInterp 3.7 REQUIRED)
 find_package(PythonLibs 3.7 REQUIRED)
 find_package(Qt5 COMPONENTS Widgets OpenGL REQUIRED)
@@ -15,6 +17,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 file(GLOB FILES_CC "*.cc" "base/*.cc" "gen/*.cc" "viewer/*.cc" "py/out/*.cpp")
+#"test/*.cpp" "test/*.cc")
 
 add_library(PyCadCpp SHARED ${FILES_CC})
 

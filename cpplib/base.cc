@@ -39,7 +39,7 @@ namespace PyCadCpp::base
 	
 	TopoDS_Shape copy(TopoDS_Shape shape)
 	{
-		auto makeCopy=BRepBuilderAPI_Copy(shape);
+		BRepBuilderAPI_Copy makeCopy(shape);
 		return makeCopy.Shape();
 	}
 
@@ -48,7 +48,7 @@ namespace PyCadCpp::base
 		auto m=gp_Trsf();
 		m.SetTranslation(gp_Vec(x, y, z));
 
-		auto opApi=BRepBuilderAPI_Transform(m);
+		BRepBuilderAPI_Transform opApi(m);
 		opApi.Perform(shape, true);
 		return opApi.Shape();
 	}
@@ -57,7 +57,7 @@ namespace PyCadCpp::base
 		auto m=gp_Trsf();
 		m.SetRotation(rotationQuaternionYPR(x, y, z));
 
-		auto opApi=BRepBuilderAPI_Transform(m);
+		BRepBuilderAPI_Transform opApi(m);
 		opApi.Perform(shape, true);
 		return opApi.Shape();
 	}
@@ -67,7 +67,7 @@ namespace PyCadCpp::base
 		auto m=gp_Trsf();
 		m.SetMirror(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(x, y, z)));
 		
-		auto opApi=BRepBuilderAPI_Transform(m);
+		BRepBuilderAPI_Transform opApi(m);
 		opApi.Perform(shape, true);
 		return opApi.Shape();
 	}

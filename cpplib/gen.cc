@@ -1,6 +1,11 @@
 #include "gen.h"
 #include <cmath>
 
+#include <TColgp_Array1OfPnt.hxx>
+#include <TColgp_Array2OfPnt.hxx>
+#include <TColStd_Array1OfReal.hxx>
+#include <TColStd_Array1OfInteger.hxx>
+#include <TopoDS.hxx>
 
 #include <BRepBuilderAPI_MakeVertex.hxx>
 #include <BRepBuilderAPI_MakeWire.hxx>
@@ -23,9 +28,11 @@
 #include <GeomAPI_Interpolate.hxx>
 #include <GeomAPI_PointsToBSpline.hxx>
 
+/*
 #include <Font_BRepFont.hxx>
 #include <Font_BRepTextBuilder.hxx>
 #include <Font_FontMgr.hxx>
+*/
 #include <BRepLib.hxx>
 
 #include "base.h"
@@ -145,7 +152,7 @@ namespace PyCadCpp::gen
 		if(points.size()!=rows*cols)
 			throw new base::Exception("points must have rows*cols elements!");
 		
-		auto parr=TColgp_Array2OfPnt(0, rows-1, 0, cols-1);
+		TColgp_Array2OfPnt parr(0, rows-1, 0, cols-1);
 		for(size_t i=0;i<rows*cols;i++)
 			parr.SetValue(i/cols, i%cols, 
 				gp_Pnt(points[i].x(), points[i].y(), points[i].z()));
@@ -192,7 +199,7 @@ namespace PyCadCpp::gen
 
 	brep::Wire* bezier_3d(std::vector<Vec3> points)
 	{
-		auto parr=TColgp_Array1OfPnt(1, points.size());
+		TColgp_Array1OfPnt parr(1, points.size());
 		for(size_t i=0;i<points.size();i++)
 			parr.SetValue(1+i, gp_Pnt(points[i].x(), points[i].y(), points[i].z()));
 		
@@ -231,10 +238,10 @@ namespace PyCadCpp::gen
 		}
 		
 		
-		auto arr_poles=TColgp_Array1OfPnt(0, poles.size()-1);
-		auto arr_weights=TColStd_Array1OfReal(0, weights.size()-1);
-		auto arr_knots=TColStd_Array1OfReal(0, knots_unique.size()-1);
-		auto arr_mult=TColStd_Array1OfInteger(0, multiplicities.size()-1);
+		TColgp_Array1OfPnt arr_poles(0, poles.size()-1);
+		TColStd_Array1OfReal arr_weights(0, weights.size()-1);
+		TColStd_Array1OfReal arr_knots(0, knots_unique.size()-1);
+		TColStd_Array1OfInteger arr_mult(0, multiplicities.size()-1);
 		
 		for(size_t i=0;i<poles.size();i++)
 			arr_poles.SetValue(i, gp_Pnt(poles[i].x(), poles[i].y(), poles[i].z()));
@@ -302,6 +309,7 @@ namespace PyCadCpp::gen
 		std::string fontFamily, FontWeight fontWeight, double size, double elevation,
 		std::string text)
 	{
+		/*
 		Font_FontAspect aspect;
 		if(fontWeight==FontWeight::Regular)
 			aspect=Font_FA_Regular;
@@ -326,6 +334,8 @@ namespace PyCadCpp::gen
 		auto makePrism=BRepPrimAPI_MakePrism(shape, gp_Vec(0, 0, elevation), false);
 		
 		return new brep::Solid(makePrism.Shape());
+		*/
+		return nullptr;
 		
 	}
 	

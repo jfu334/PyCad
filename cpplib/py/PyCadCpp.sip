@@ -140,6 +140,7 @@ namespace PyCadCpp
 			#include "objects.h"
 			%End
 			
+			
 			public:
 				std::vector<PyCadCpp::brep::Edge> edges();
 				std::vector<PyCadCpp::brep::Vertex> vertices();
@@ -300,18 +301,18 @@ namespace PyCadCpp
 		#include "op.h"
 		%End
 		
+		brep::Shell* wireToShell(brep::Wire* obj);
+		brep::Solid* shellToSolid(brep::Shell* shell);
+		
+		brep::Shell* reverse(brep::Shell* shell);
+	
 		brep::Solid* fuse(brep::Solid* obj1, brep::Solid* obj2);
+		brep::Shell* fuse(brep::Shell* obj1, brep::Shell* obj2);
 		brep::Wire* fuse(brep::Wire* obj1, brep::Wire* obj2);
 		
 		brep::Solid* cut(brep::Solid* obj1, brep::Solid* obj2);
 		brep::Solid* common(brep::Solid* obj1, brep::Solid* obj2);
 
-		// name aliases like openscad
-		brep::Solid* union_(brep::Solid* obj1, brep::Solid* obj2);
-		brep::Wire* union_(brep::Wire* obj1, brep::Wire* obj2);
-		
-		brep::Solid* difference(brep::Solid* obj1, brep::Solid* obj2);
-		brep::Solid* intersect(brep::Solid* obj1, brep::Solid* obj2);
 		
 		
 		brep::Shell* extrude_linear(brep::Wire* surface, double h);
@@ -334,6 +335,8 @@ namespace PyCadCpp
 			std::vector<PyCadCpp::brep::Edge> edges, double size);
 		brep::Solid* fillet(brep::Solid* solid, 
 			std::vector<PyCadCpp::brep::Edge> edges, std::vector<double> size);
+		
+		brep::Shell* filling(int degree, std::vector<PyCadCpp::brep::Wire*> bounds, std::vector<PyCadCpp::brep::Wire*> supports);
 		
 		brep::Solid* hollow(brep::Solid* solid, 
 			std::vector<PyCadCpp::brep::Face> openingFaces, double thickness, double tol=1e-3);
@@ -358,7 +361,7 @@ namespace PyCadCpp
 		#include "export.h"
 		%End
 		
-		void export_stl(std::string filename, brep::Solid* object, double deflection);
+		void export_stl(std::string filename, brep::Solid* object, double deflection, double adeflection=0.5);
 	};
 	
 	namespace viewer

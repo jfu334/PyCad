@@ -10,10 +10,16 @@
 #include <BRepProj_Projection.hxx>
 #include <BRepPrimAPI_MakePrism.hxx>
 #include <BRepPrimAPI_MakeRevol.hxx>
+
+#include <BRep_Builder.hxx>
+#include <BRepBuilderAPI_Sewing.hxx>
 #include <BRepBuilderAPI_MakeWire.hxx>
 #include <BRepBuilderAPI_MakeFace.hxx>
+#include <BRepBuilderAPI_MakeSolid.hxx>
 
 #include <BRepFilletAPI_MakeFillet.hxx>
+
+#include <BRepOffsetAPI_MakeFilling.hxx>
 #include <BRepOffsetAPI_NormalProjection.hxx>
 #include <BRepOffsetAPI_MakeThickSolid.hxx>
 #include <BRepOffsetAPI_MakeEvolved.hxx>
@@ -22,6 +28,7 @@
 
 #include <ShapeFix_Shape.hxx>
 #include <BRepLib_FuseEdges.hxx>
+#include <ShapeFix_Shell.hxx>
 
 #include "base.h"
 
@@ -35,21 +42,56 @@ namespace PyCadCpp::op
 		auto makeApi=BRepBuilderAPI_MakeFace(TopoDS::Wire(obj->shape()));
 		return new Shell(makeApi.Face());
 	}
-	
-	// aliases
-	brep::Solid* union_(brep::Solid* obj1, brep::Solid* obj2) {return fuse(obj1, obj2);}
-	brep::Wire* union_(brep::Wire* obj1, brep::Wire* obj2) {return fuse(obj1, obj2);}
-	brep::Solid* cut(brep::Solid* obj1, brep::Solid* obj2) {return difference(obj1, obj2);}
-
-	brep::Solid* common(brep::Solid* obj1, brep::Solid* obj2)
+	brep::Solid* shellToSolid(brep::Shell* shell)
 	{
-		throw new base::Exception("Not implemented!");
-	}
+		// first build a shell of all faces
+		auto makeApi=BRep_Builder();
 
+		TopoDS_Shell s;
+		makeApi.MakeShell(s);
+		for(auto f: shell->faces())
+			makeApi.Add(s, f.shape_face());
+		
+		// now convert the shell to a solid
+		TopoDS_Solid solid;
+		makeApi.MakeSolid(solid);
+		makeApi.Add(solid, s);
+		
+		return new Solid(solid);
+	}
+	
+	brep::Shell* reverse(brep::Shell* shell)
+	{
+		// first build a shell of all faces
+		auto makeApi=BRep_Builder();
+		
+		TopoDS_Shell s;
+		makeApi.MakeShell(s);
+		for(auto f: shell->faces())
+		{
+			TopoDS_Face fnew=TopoDS::Face(f.shape_face().Complemented());
+			makeApi.Add(s, fnew);
+		}
+		return new Shell(s);
+	}
+	
 	brep::Solid* fuse(brep::Solid* obj1, brep::Solid* obj2)
 	{
 		auto makeApi=BRepAlgoAPI_Fuse(obj1->shape(), obj2->shape());
 		return new Solid(makeApi.Shape());
+	}
+	
+	brep::Shell* fuse(brep::Shell* obj1, brep::Shell* obj2)
+	{
+		BRepBuilderAPI_Sewing makeApi;
+		for(auto f: obj1->faces())
+			makeApi.Add(f.shape_face());
+		for(auto f: obj2->faces())
+			makeApi.Add(f.shape_face());
+		
+		makeApi.Perform();
+		
+		return new Shell(makeApi.SewedShape());
 	}
 	brep::Wire* fuse(brep::Wire* obj1, brep::Wire* obj2)
 	{
@@ -59,13 +101,13 @@ namespace PyCadCpp::op
 		return new Wire(makeApi.Wire());
 	}
 	
-	brep::Solid* difference(brep::Solid* obj1, brep::Solid* obj2)
+	brep::Solid* cut(brep::Solid* obj1, brep::Solid* obj2)
 	{
 		auto makeApi=BRepAlgoAPI_Cut(obj1->shape(), obj2->shape());
 		return new Solid(makeApi.Shape());
 	}
 	
-	brep::Solid* intersect(brep::Solid* obj1, brep::Solid* obj2)
+	brep::Solid* common(brep::Solid* obj1, brep::Solid* obj2)
 	{
 		auto makeApi=BRepAlgoAPI_Common(obj1->shape(), obj2->shape());
 		return new Solid(makeApi.Shape());
@@ -176,7 +218,7 @@ namespace PyCadCpp::op
 	{
 		auto makeFillet=BRepFilletAPI_MakeFillet(solid->shape());
 		for(size_t i=0;i<size.size();i++)
-			makeFillet.Add(size[i], edges[i]._data);
+			makeFillet.Add(size[i], edges[i].shape_edge());
 		
 		makeFillet.Build();
 		
@@ -191,10 +233,28 @@ namespace PyCadCpp::op
 		return new Solid(makeFillet.Shape());
 	}
 	
+	brep::Shell* filling(int degree, std::vector<brep::Wire*> bounds, std::vector<brep::Wire*> supports)
+	{
+		auto makeApi=BRepOffsetAPI_MakeFilling(degree, 15, 3);
+		
+		for(auto b: bounds)
+			for(auto e: b->edges())
+				makeApi.Add(e.shape_edge(), GeomAbs_C0, Standard_True);
+		
+		for(auto s: supports)
+			for(auto e: s->edges())
+				makeApi.Add(e.shape_edge(), GeomAbs_C0, Standard_False);
+		
+		makeApi.Build();
+		
+		return new Shell(makeApi.Shape());
+		
+	}
+	
 	brep::Solid* hollow(brep::Solid* solid, std::vector<Face> openingFaces, double thickness, double tol)
 	{
 		TopTools_ListOfShape facesToRemove;
-		for(auto i: openingFaces) facesToRemove.Append(i._data);
+		for(auto i: openingFaces) facesToRemove.Append(i.shape_face());
 		
 		auto makeHollow=BRepOffsetAPI_MakeThickSolid();
 		makeHollow.MakeThickSolidByJoin(solid->shape(), facesToRemove, thickness, tol);
