@@ -335,7 +335,8 @@ namespace PyCadCpp
 		
 		brep::Solid* extrude_linear(brep::Shell* surface, double h);
 		brep::Solid* extrude_linear(brep::Shell* surface, Vec3 direction);
-		
+
+		brep::Shell* extrude_rotate(brep::Wire* wire, double angle, Vec3 axis);
 		brep::Solid* extrude_rotate(brep::Shell* surface, double angle, Vec3 axis);
 		
 		brep::Shell* pipe_shell(brep::Wire* profile, brep::Wire* spine, brep::Wire* spineNormal=nullptr);

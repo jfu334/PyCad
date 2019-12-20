@@ -134,10 +134,16 @@ namespace PyCadCpp::op
 		return new Solid(makePrism.Shape());
 	}
 	
+	brep::Shell* extrude_rotate(brep::Wire* wire, double angle, Vec3 axis)
+	{
+		auto occ_axis=gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(axis.x(), axis.y(), axis.z()));
+		auto makeRevol=BRepPrimAPI_MakeRevol(wire->shape(), occ_axis, angle/180*M_PI);
+		return new Shell(makeRevol.Shape());
+	}
 	brep::Solid* extrude_rotate(Shell* shell, double angle, Vec3 axis)
 	{
 		auto occ_axis=gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(axis.x(), axis.y(), axis.z()));
-		auto makeRevol=BRepPrimAPI_MakeRevol(shell->shape(), occ_axis, angle);
+		auto makeRevol=BRepPrimAPI_MakeRevol(shell->shape(), occ_axis, angle/180*M_PI);
 		return new Solid(makeRevol.Shape());
 	}
 	
