@@ -1,8 +1,7 @@
 PyCad
 =====
 
-What is PyCad?
---------------
+# What is PyCad?
 
 PyCad tries to be a complete CAD suite to be used from Python. 
 
@@ -13,3 +12,6 @@ It supports you during the desing phase by providing different views on the mode
 
 Finally it allows you to integrate objects into a larger context. 
 
+# Samples
+
+[Can be found here](../blob/master/doc/examples/samples.md)
