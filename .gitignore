@@ -6,3 +6,4 @@ build/
 
 links
 pytest
+mkdoc/out

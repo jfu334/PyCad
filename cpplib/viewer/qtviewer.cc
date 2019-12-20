@@ -12,6 +12,9 @@
 #include <AIS_ColoredShape.hxx>
 #include <Prs3d_PointAspect.hxx>
 
+#include <Image_PixMap.hxx>
+#include <Image_AlienPixMap.hxx>
+
 #include "occ_helper.h"
 
 #include "objects.h"
@@ -80,6 +83,31 @@ namespace PyCadCpp::viewer
 		_occView->Redraw();
 	}
 	
+	void QtViewer::setTarget(double x, double y, double z)
+	{
+		_navHandler.setTarget(Vec3(x, y, z));
+		updateByNavHandler();
+	}
+	void QtViewer::setCamera(double azimuth, double elevation, double distance)
+	{
+		_navHandler.setAzimuth(azimuth);
+		_navHandler.setElevation(elevation);
+		_navHandler.setDistance(distance);
+		updateByNavHandler();
+	}
+	
+	void QtViewer::saveImage(std::string path)
+	{
+		Image_AlienPixMap image;
+		
+		_occView->ToPixMap(image, size().width(), size().height());
+		
+		// it's wrong to hard code this, should retrieve the format somehow. 
+		// without, colors are swapped. 
+		image.SetFormat(Image_PixMap::ImgBGR);
+		
+		image.Save(path.c_str());
+	}
 	
 	void QtViewer::addObject(ViewObject* object)
 	{

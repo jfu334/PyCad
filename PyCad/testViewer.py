@@ -73,7 +73,6 @@ for v in argViews:
 reloadProject()
 
 viewer.setReloadRequestHandler(reloadProject)
-
 viewer.run()
 
 

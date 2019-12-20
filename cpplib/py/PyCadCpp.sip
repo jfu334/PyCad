@@ -1,4 +1,4 @@
-%Module(name=PyCadCpp, keyword_arguments="Optional")
+%Module(name=PyCadCpp, keyword_arguments="All")
 %HideNamespace(name=PyCadCpp)
 
 %Import QtCore/QtCoremod.sip
@@ -391,6 +391,11 @@ namespace PyCadCpp
 			void addObject(ViewObject* object);
 			void removeObject(ViewObject* object);
 			void clearObjects();
+			
+			void saveImage(std::string path);
+			
+			void setTarget(double x, double y, double z);
+			void setCamera(double azimuth, double elevation, double distance);
 		};
 	};
 	
