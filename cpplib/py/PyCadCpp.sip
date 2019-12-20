@@ -98,6 +98,21 @@ namespace PyCadCpp
 			float alpha();
 	};
 	
+	namespace colors
+	{
+		%TypeHeaderCode
+		#include "color.h"
+		%End
+		
+		const Color red;
+		const Color green;
+		const Color blue;
+		
+		const Color yellow;
+		const Color cyan;
+		const Color pink;
+	};
+	
 	struct GeometryBase
 	{
 		%TypeHeaderCode

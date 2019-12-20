@@ -36,6 +36,7 @@ def makeScene(view):
 		
 	else:
 		doctext=io.StringIO()
+		doctext.write("# Examples\n")
 		
 		samples=[i for i in os.listdir("src") if i.endswith(".py")]
 		for s in sorted(samples):
