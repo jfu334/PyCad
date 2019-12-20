@@ -1,7 +1,7 @@
 
 # Simple 3d objects
 
-![Picture](solids.jpg)
+![Picture](10_solids.jpg)
 
 ```python
 import PyCad
@@ -24,7 +24,7 @@ result=[sphere, cube, cylinder, cone]
 
 # Boolean operations with solids
 
-![Picture](csg.jpg)
+![Picture](11_csg.jpg)
 
 ```python
 import PyCad
@@ -52,7 +52,7 @@ result=[sphere, cylinder, fuse, cut, common]
 
 # Lines 
 
-![Picture](lines.jpg)
+![Picture](20_wires.jpg)
 
 ```python
 import PyCad
