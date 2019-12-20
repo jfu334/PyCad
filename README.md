@@ -14,4 +14,4 @@ Finally it allows you to integrate objects into a larger context.
 
 # Samples
 
-[Can be found here](../blob/master/doc/examples/samples.md)
+[Can be found here](doc/examples/samples.md)
