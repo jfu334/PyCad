@@ -86,7 +86,7 @@ result=[line, bezier, fuse, helix]
 
 ## Extrusion
 
-![Picture](20_wires.jpg)
+![Picture](30_extrusion.jpg)
 
 Extrusion of a wire leads to a shell. Extrusion of a shell leads to a solid. 
 
