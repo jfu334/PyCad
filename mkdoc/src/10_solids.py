@@ -17,7 +17,7 @@ result=[sphere, cube, cylinder, cone]
 doc="""
 # Simple 3d objects
 
-(solids.jpg)
+![Picture](solids.jpg)
 
 [CODE]
 """
