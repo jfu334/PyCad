@@ -48,8 +48,13 @@ def makeScene(view):
 				showElement(o, view)
 			
 			# save image to file
+			imgFile=os.path.join("out", s.split(".")[0]+".jpg")
 			view.update()
-			view.saveImage(os.path.join("out", s.split(".")[0]+".jpg"))
+			view.saveImage(imgFile)
+			
+			# NOTE: OCC seems to have a bug, always saves image as PBM. (D'Oh)
+			# Run imageMagick to make a jpg of it. 
+			os.system(f"convert {imgFile} -quality 95 {imgFile}")
 			
 			# extract code from example
 			src=[i.replace("\n", "").replace("\r", "") for i in open(os.path.join("src", s), "r")]
@@ -72,8 +77,6 @@ def makeScene(view):
 			
 		with open(os.path.join("out", "samples.md"), "w") as f:
 			f.write(doctext.getvalue())
-			
-			
 			
 		app.exit()
 
