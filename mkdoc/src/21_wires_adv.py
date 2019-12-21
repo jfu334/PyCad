@@ -35,7 +35,7 @@ doc="""
 PyCad offers an extermental curve design tool that allows to shape a curve with
 control points and various other stuff. 
 
-![Picture](21_wires_adv.jpg|width=300)
+![Picture](21_wires_adv.jpg | width=300)
 
 [CODE]
 """

@@ -70,7 +70,7 @@ Planar wires can be closed to a shell with PyCad.op.wireToShell.
 PyCad.op.filling can be used for non-planar wires. 
 It also allows to specify support wires that define the curvature. 
 
-![Picture](25_shells.jpg|width=300)
+![Picture](25_shells.jpg | width=300)
 
 [CODE]
 """
