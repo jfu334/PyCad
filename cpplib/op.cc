@@ -173,45 +173,76 @@ namespace PyCadCpp::op
 		return new Solid(makePipe.Shape());
 	}
 	
-	std::vector<brep::Wire*> project_normal(brep::Wire* wire, brep::Shell* surface)
+	namespace
 	{
-		auto makeApi=BRepOffsetAPI_NormalProjection(surface->shape());
-		makeApi.Add(wire->shape());
-		makeApi.Build();
+		std::vector<brep::Wire*> project_normal(TopoDS_Shape wire, TopoDS_Shape surface)
+		{
+			auto makeApi=BRepOffsetAPI_NormalProjection(surface);
+			makeApi.Add(wire);
+			makeApi.Build();
+			
+			TopTools_ListOfShape list;
+			if(!makeApi.BuildWire(list))
+				throw new base::Exception("Unable to perform! Result is not a single wire.");
+			
+			std::vector<brep::Wire*> result;
+			for(auto i: list) result.push_back(new brep::Wire(i));
+			
+			return result;
+		}
 		
-		TopTools_ListOfShape list;
-		if(!makeApi.BuildWire(list))
-			throw new base::Exception("Unable to perform! Result is not a single wire.");
+		std::vector<brep::Wire*> project_linear(TopoDS_Shape wire, TopoDS_Shape surface, Vec3 direction)
+		{
+			auto makeApi=BRepProj_Projection(wire, surface, 
+				gp_Dir(direction.x(), direction.y(), direction.z()));
+			
+			std::vector<brep::Wire*> result;
+			for(;makeApi.More();makeApi.Next())
+				result.push_back(new Wire(makeApi.Current()));
+			
+			return result;
+		}
 		
-		std::vector<brep::Wire*> result;
-		for(auto i: list) result.push_back(new brep::Wire(i));
-		
-		return result;
+		std::vector<brep::Wire*> project_point(TopoDS_Shape wire, TopoDS_Shape surface, Vec3 point)
+		{
+			auto makeApi=BRepProj_Projection(wire, surface, 
+				gp_Pnt(point.x(), point.y(), point.z()));
+			
+			std::vector<brep::Wire*> result;
+			for(;makeApi.More();makeApi.Next())
+				result.push_back(new Wire(makeApi.Current()));
+			
+			return result;
+		}
+	}
+	
+	std::vector<brep::Wire*> project_normal(brep::Wire* wire, brep::Shell* surface) 
+	{
+		return project_normal(wire->shape(), surface->shape());
+	}
+	std::vector<brep::Wire*> project_normal(brep::Wire* wire, brep::Solid* solid)
+	{
+		return project_normal(wire->shape(), solid->shape());
 	}
 	
 	std::vector<brep::Wire*> project_linear(brep::Wire* wire, brep::Shell* surface, Vec3 direction)
 	{
-		auto makeApi=BRepProj_Projection(wire->shape(), surface->shape(), 
-			gp_Dir(direction.x(), direction.y(), direction.z()));
-		
-		std::vector<brep::Wire*> result;
-		for(;makeApi.More();makeApi.Next())
-			result.push_back(new Wire(makeApi.Current()));
-		
-		return result;
+		return project_linear(wire->shape(), surface->shape(), direction);
+	}
+	std::vector<brep::Wire*> project_linear(brep::Wire* wire, brep::Solid* solid, Vec3 direction)
+	{
+		return project_linear(wire->shape(), solid->shape(), direction);
 	}
 	
 	std::vector<brep::Wire*> project_point(brep::Wire* wire, brep::Shell* surface, Vec3 point)
 	{
-		auto makeApi=BRepProj_Projection(wire->shape(), surface->shape(), 
-			gp_Pnt(point.x(), point.y(), point.z()));
-		
-		std::vector<brep::Wire*> result;
-		for(;makeApi.More();makeApi.Next())
-			result.push_back(new Wire(makeApi.Current()));
-		
-		return result;
+		return project_point(wire->shape(), surface->shape(), point);
 	}
+	std::vector<brep::Wire*> project_point(brep::Wire* wire, brep::Solid* solid, Vec3 point)
+	{
+		return project_point(wire->shape(), solid->shape(), point);
+	}
+	
 	
 	brep::Solid* fillet(brep::Solid* solid, std::vector<Edge> edges, double size)
 	{

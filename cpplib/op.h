@@ -50,14 +50,17 @@ namespace PyCadCpp::op
 	// Projects a wire onto a surface using the surface normals. 
 	// Returns all resulting wires. 
 	std::vector<brep::Wire*> project_normal(brep::Wire* wire, brep::Shell* surface);
+	std::vector<brep::Wire*> project_normal(brep::Wire* wire, brep::Solid* solid);
 	
 	// Projects a wire onto a surface along given direction. 
 	// Returns all found intersections. 
 	std::vector<brep::Wire*> project_linear(brep::Wire* wire, brep::Shell* surface, Vec3 direction);
+	std::vector<brep::Wire*> project_linear(brep::Wire* wire, brep::Solid* solid, Vec3 direction);
 	
 	// Projects a wire onto a surface by making a point projection from point. 
 	// Returns all found intersections. 
 	std::vector<brep::Wire*> project_point(brep::Wire* wire, brep::Shell* surface, Vec3 point);
+	std::vector<brep::Wire*> project_point(brep::Wire* wire, brep::Solid* solid, Vec3 point);
 	
 	
 	//

@@ -366,9 +366,13 @@ namespace PyCadCpp
 		brep::Solid* pipe_solid(brep::Wire* profile, brep::Wire* spine, brep::Wire* spineNormal=nullptr);
 		
 		std::vector<PyCadCpp::brep::Wire*> project_normal(brep::Wire* wire, brep::Shell* surface);
+		std::vector<PyCadCpp::brep::Wire*> project_normal(brep::Wire* wire, brep::Solid* solid);
 		
 		std::vector<PyCadCpp::brep::Wire*> project_linear(brep::Wire* wire, brep::Shell* surface, Vec3 direction);
+		std::vector<PyCadCpp::brep::Wire*> project_linear(brep::Wire* wire, brep::Solid* solid, Vec3 direction);
+		
 		std::vector<PyCadCpp::brep::Wire*> project_point(brep::Wire* wire, brep::Shell* surface, Vec3 point);
+		std::vector<PyCadCpp::brep::Wire*> project_point(brep::Wire* wire, brep::Solid* solid, Vec3 point);
 		
 		brep::Solid* fillet(brep::Solid* solid, 
 			std::vector<PyCadCpp::brep::Edge> edges, double size);

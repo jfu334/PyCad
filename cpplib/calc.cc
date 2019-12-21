@@ -1,6 +1,7 @@
 #include "calc.h"
 #include <Bnd_Box.hxx>
 #include <BRepExtrema_DistanceSS.hxx>
+#include <BRepExtrema_DistShapeShape.hxx>
 #include <BRepBuilderAPI_MakeVertex.hxx>
 
 namespace PyCadCpp::calc
@@ -20,7 +21,7 @@ namespace PyCadCpp::calc
 		auto bbox=Bnd_Box();
 		bbox.SetWhole();
 		
-		auto calcApi=BRepExtrema_DistanceSS(obj.shape(), p, bbox, bbox, max);
-		return calcApi.DistValue();
+		auto calcApi=BRepExtrema_DistShapeShape(obj.shape(), p);
+		return calcApi.Value();
 	}
 }

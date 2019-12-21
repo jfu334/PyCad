@@ -49,7 +49,7 @@ def makeScene(view):
 				showElement(o, view)
 			
 			# save image to file
-			imgFile=os.path.join("out", s.split(".")[0]+".jpg")
+			imgFile=os.path.join("..", "doc", "examples", s.split(".")[0]+".jpg")
 			view.update()
 			view.saveImage(imgFile)
 			
@@ -76,7 +76,7 @@ def makeScene(view):
 			doc=doc.replace("[CODE]", "\n".join(code))
 			doctext.write(doc+"\n\n")
 			
-		with open(os.path.join("out", "samples.md"), "w") as f:
+		with open(os.path.join("..", "doc", "examples", "samples.md"), "w") as f:
 			f.write(doctext.getvalue())
 			
 		app.exit()
@@ -92,7 +92,7 @@ def showElement(obj_, view):
 		view.addObject(vobj)
 	elif(isinstance(obj_, PyCad.GeometryBase)):
 		vobj=PyCad.viewer.ViewObject(obj_)
-		vobj.setColor(PyCad.Color(1, 1, 1, 1))
+		vobj.setColor(PyCad.Color(0, 0, 0, 1))
 		view.addObject(vobj)
 	elif(isinstance(obj_, PyCad.Vec3)):
 		vobj=PyCad.viewer.ViewObject(PyCad.gen.point_3d(obj_));

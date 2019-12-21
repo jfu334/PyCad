@@ -32,7 +32,7 @@ result=[shell, curve["result"]]+ curve["debug"]
 doc="""
 ## Advanced Lines 
 
-PyCad offers an extermental curve design tool that allows to shape a curve with
+PyCad offers an experimental curve design tool that allows to shape a curve with
 control points and various other stuff. 
 
 ![Picture](21_wires_adv.jpg)
