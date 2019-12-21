@@ -22,7 +22,7 @@ result=[sphere, cylinder, fuse, cut, common]
 doc="""
 ## Boolean operations with solids
 
-![Picture](11_csg.jpg | width=300)
+![Picture](11_csg.jpg)
 
 [CODE]
 """

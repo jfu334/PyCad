@@ -2,7 +2,7 @@
 
 ## Simple 3d objects
 
-![Picture](10_solids.jpg | width=300)
+![Picture](10_solids.jpg)
 
 ```python
 import PyCad
@@ -25,7 +25,7 @@ result=[sphere, cube, cylinder, cone]
 
 ## Boolean operations with solids
 
-![Picture](11_csg.jpg | width=300)
+![Picture](11_csg.jpg)
 
 ```python
 import PyCad
@@ -53,7 +53,7 @@ result=[sphere, cylinder, fuse, cut, common]
 
 ## Lines 
 
-![Picture](20_wires.jpg | width=300)
+![Picture](20_wires.jpg)
 
 ```python
 import PyCad
@@ -89,7 +89,7 @@ result=[line, bezier, fuse, helix]
 PyCad offers an extermental curve design tool that allows to shape a curve with
 control points and various other stuff. 
 
-![Picture](21_wires_adv.jpg | width=300)
+![Picture](21_wires_adv.jpg)
 
 ```python
 import PyCad
@@ -132,7 +132,7 @@ Planar wires can be closed to a shell with PyCad.op.wireToShell.
 PyCad.op.filling can be used for non-planar wires. 
 It also allows to specify support wires that define the curvature. 
 
-![Picture](25_shells.jpg | width=300)
+![Picture](25_shells.jpg)
 
 ```python
 import PyCad
@@ -203,7 +203,7 @@ result=[outline1, shell1, outline2, support2, shell2]
 
 ## Extrusion
 
-![Picture](30_extrusion.jpg | width=300)
+![Picture](30_extrusion.jpg)
 
 Extrusion of a wire leads to a shell. Extrusion of a shell leads to a solid. 
 
