@@ -27,7 +27,7 @@ result=[line, bezier, fuse, helix]
 doc="""
 ## Lines 
 
-![Picture](20_wires.jpg)
+![Picture](20_wires.jpg|width=300)
 
 [CODE]
 """

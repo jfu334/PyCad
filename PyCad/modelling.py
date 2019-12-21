@@ -1,11 +1,11 @@
 from . import PyCadCpp
 
-def curve_experimental(definition, close=False):
+def curve_experimental_v1(definition, close=False):
 	
 	def getPropertyOfPoint(i, properties, default=None):
 		for p in properties:
-			if(p in definition[i][1]):
-				return definition[i][1][p]
+			if(p in definition[i]):
+				return definition[i][p]
 		
 		if(default is None):
 			raise Exception(f"Any of {', '.join(properties)} required!")
@@ -14,7 +14,7 @@ def curve_experimental(definition, close=False):
 	
 	def anyOf(i, properties):
 		for p in properties:
-			if(p in definition[i][1] and definition[i][1][p]):
+			if(p in definition[i] and definition[i][p]):
 				return True
 		return False
 	
@@ -32,12 +32,12 @@ def curve_experimental(definition, close=False):
 		
 		# compute incomming and outgoing vectors and their norm
 		if(pprev is not None):
-			vin=pthis[0]-pprev[0]
+			vin=pthis['p']-pprev['p']
 			data["vec_in"]=vin
 			data["vec_in_norm"]=vin.norm()
 		
 		if(pnext is not None):
-			vout=pnext[0]-pthis[0]
+			vout=pnext['p']-pthis['p']
 			data["vec_out"]=vout
 			data["vec_out_norm"]=vout.norm()
 			
@@ -63,9 +63,14 @@ def curve_experimental(definition, close=False):
 	
 	# create debug points
 	for i in definition:
-		p=PyCadCpp.gen.point_3d(i[0])
+		p=PyCadCpp.gen.point_3d(i['p'])
 		p.setColor(PyCadCpp.Color(1, 0, 0, 1))
 		debug.append(p)
+		
+		if('name' in i):
+			l=PyCadCpp.annotation.Text(i['p'], " "+i['name'])
+			l.setColor(PyCadCpp.Color(1, 0, 0, 1))
+			debug.append(l)
 	
 	for i in range(len(definition)-1) if not close else range(-1, len(definition)-1):
 		
@@ -79,40 +84,40 @@ def curve_experimental(definition, close=False):
 		supports=[]
 		if(anyOf(i, ["smooth_out", "smooth"])):
 			weight=getPropertyOfPoint(i, ["weight", "weight_out"])
-			v=p1[0]+p1d["vec_tangential_out"]*weight
+			v=p1['p']+p1d["vec_tangential_out"]*weight
 			supports.append(v)
 			
 			pdbg=PyCadCpp.gen.point_3d(v)
 			pdbg.setColor(PyCadCpp.Color(0, 0, 1, 1))
 			debug.append(pdbg)
 			
-			ldbg=PyCadCpp.gen.line_3d([p1[0], v])
+			ldbg=PyCadCpp.gen.line_3d([p1['p'], v])
 			ldbg.setColor(PyCadCpp.Color(0, 0, 1, 1))
 			debug.append(ldbg)
 		
-		if("support" in p1[1]):
-			supports+=p1[1]["support"]
+		if("support" in p1):
+			supports+=p1["support"]
 			
-			for j in p1[1]["support"]:
+			for j in p1["support"]:
 				pdbg=PyCadCpp.gen.point_3d(j)
 				pdbg.setColor(PyCadCpp.Color(0, 1, 0, 1))
 				debug.append(pdbg)
 		
 		if(anyOf(i+1, ["smooth_in", "smooth"])):
 			weight=getPropertyOfPoint(i+1, ["weight", "weight_in"])
-			v=p2[0]-p2d["vec_tangential_in"]*weight
+			v=p2['p']-p2d["vec_tangential_in"]*weight
 			supports.append(v)
 		
 			pdbg=PyCadCpp.gen.point_3d(v)
 			pdbg.setColor(PyCadCpp.Color(0, 0, 1, 1))
 			debug.append(pdbg)
 			
-			ldbg=PyCadCpp.gen.line_3d([p2[0], v])
+			ldbg=PyCadCpp.gen.line_3d([p2['p'], v])
 			ldbg.setColor(PyCadCpp.Color(0, 0, 1, 1))
 			debug.append(ldbg)
 		
 		# build and add bezier
-		c=PyCadCpp.gen.bezier_3d([p1[0]]+supports+[p2[0]])
+		c=PyCadCpp.gen.bezier_3d([p1['p']]+supports+[p2['p']])
 		curve=c if curve is None else PyCadCpp.op.fuse(curve, c)
 	
 	debug.append(curve)

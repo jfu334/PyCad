@@ -2,7 +2,7 @@
 
 ## Simple 3d objects
 
-![Picture](10_solids.jpg)
+![Picture](10_solids.jpg|width=300)
 
 ```python
 import PyCad
@@ -25,7 +25,7 @@ result=[sphere, cube, cylinder, cone]
 
 ## Boolean operations with solids
 
-![Picture](11_csg.jpg)
+![Picture](11_csg.jpg|width=300)
 
 ```python
 import PyCad
@@ -53,7 +53,7 @@ result=[sphere, cylinder, fuse, cut, common]
 
 ## Lines 
 
-![Picture](20_wires.jpg)
+![Picture](20_wires.jpg|width=300)
 
 ```python
 import PyCad
@@ -84,6 +84,47 @@ result=[line, bezier, fuse, helix]
 
 
 
+## Advanced Lines 
+
+PyCad offers an extermental curve design tool that allows to shape a curve with
+control points and various other stuff. 
+
+![Picture](21_wires_adv.jpg|width=300)
+
+```python
+import PyCad
+
+
+# returns a dict with keys 'result' and 'debug'. The latter can be used to 
+# visualize the defining aspects of the curve. 
+curve=PyCad.modelling.curve_experimental_v1([
+	{"name": "p1", "p": PyCad.Vec3(0, -4, 3), 
+		"smooth": True, "weight": 1, 
+		"dir": PyCad.Vec3(6, -4, 0)},
+	
+	{"name": "p2", "p": PyCad.Vec3(4, -4, 3), 
+		"smooth": True, "weight": 2},
+	
+	{"name": "p3", "p": PyCad.Vec3(4, 0, 3), 
+		"smooth": True, "weight": 3, 
+		"dir": PyCad.Vec3(-1, 0, 0), 
+		"support": [PyCad.Vec3(-4, 10, 3)]},
+	
+	{"name": "p4", "p": PyCad.Vec3(-4, 4, 3), 
+		"smooth": True, "weight_in": 2, "weight_out": 1},
+	
+	{"name": "p5", "p": PyCad.Vec3(-6, 0, 3)},
+], close=True)
+
+shell=PyCad.op.extrude_linear(curve["result"], -0.5).translate(0, 0, -6)
+shell.setColor(PyCad.colors.green)
+
+result=[shell, curve["result"]]+ curve["debug"]
+
+```
+
+
+
 ## Shells 
 
 Planar wires can be closed to a shell with PyCad.op.wireToShell. 
@@ -91,7 +132,7 @@ Planar wires can be closed to a shell with PyCad.op.wireToShell.
 PyCad.op.filling can be used for non-planar wires. 
 It also allows to specify support wires that define the curvature. 
 
-![Picture](21_shells.jpg)
+![Picture](25_shells.jpg|width=300)
 
 ```python
 import PyCad
@@ -152,6 +193,7 @@ for i in [outline2, support2, shell2]:
 	i.rotate(0, 0, 90)
 	i.translate(5, -3, 0)
 
+outline2.translate(0, 0, -0.25)
 
 result=[outline1, shell1, outline2, support2, shell2]
 
@@ -161,7 +203,7 @@ result=[outline1, shell1, outline2, support2, shell2]
 
 ## Extrusion
 
-![Picture](30_extrusion.jpg)
+![Picture](30_extrusion.jpg|width=300)
 
 Extrusion of a wire leads to a shell. Extrusion of a shell leads to a solid. 
 

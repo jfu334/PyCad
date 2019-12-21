@@ -167,5 +167,30 @@ namespace PyCadCpp
 		// TODO
 	}
 	
+	// Objects used for annotation purposes
+	namespace annotation
+	{
+		class Text
+		{
+		public:
+			Text() {}
+			Text(Vec3 position, std::string text)
+				: _position(position), _text(text) {}
+			
+			Vec3 position() const {return _position;}
+			void setPosition(Vec3 position) {_position=position;}
+			
+			std::string text() const {return _text;}
+			void setText(std::string text) {_text=text;}
+			
+			Color color() const {return _color;}
+			void setColor(Color color) {_color=color;}
+			
+		private:
+			Vec3 _position;
+			std::string _text;
+			Color _color;
+		};
+	}
 
 }

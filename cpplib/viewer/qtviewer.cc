@@ -7,6 +7,7 @@
 #include <Aspect_DisplayConnection.hxx>
 #include <Xw_Window.hxx>
 
+#include <AIS_TextLabel.hxx>
 #include <AIS_Point.hxx>
 #include <AIS_Shape.hxx>
 #include <AIS_ColoredShape.hxx>
@@ -99,6 +100,7 @@ namespace PyCadCpp::viewer
 	void QtViewer::saveImage(std::string path)
 	{
 		Image_AlienPixMap image;
+		image.SetFormat(Image_PixMap::ImgBGR);
 		
 		_occView->ToPixMap(image, size().width(), size().height());
 		
@@ -114,23 +116,42 @@ namespace PyCadCpp::viewer
 		if(!_initialized)
 			return;
 		
-		Handle(AIS_ColoredShape) aisShape=new AIS_ColoredShape(object->object()->shape());
+		if(object->object()!=nullptr)
+		{
+			Handle(AIS_ColoredShape) aisShape=new AIS_ColoredShape(object->object()->shape());
+			
+			Graphic3d_MaterialAspect material;
+			material.SetReflectionModeOff(Graphic3d_TOR_SPECULAR);
+			material.SetReflectionModeOff(Graphic3d_TOR_EMISSION);
+			
+			auto color=object->color();
+			auto occ_color=Quantity_Color(color.r(), color.g(), color.b(), Quantity_TOC_RGB);
+			
+			aisShape->SetMaterial(material);
+			aisShape->SetColor(occ_color);
 		
-		Graphic3d_MaterialAspect material;
-		material.SetReflectionModeOff(Graphic3d_TOR_SPECULAR);
-		material.SetReflectionModeOff(Graphic3d_TOR_EMISSION);
+			Handle(Prs3d_PointAspect) myPointAspect=new Prs3d_PointAspect(Aspect_TOM_POINT, occ_color, 20);
+			aisShape->Attributes()->SetPointAspect(myPointAspect); 
 		
-		auto color=object->color();
-		auto occ_color=Quantity_Color(color.r(), color.g(), color.b(), Quantity_TOC_RGB);
-		
-		aisShape->SetMaterial(material);
-		aisShape->SetColor(occ_color);
-	
-		Handle(Prs3d_PointAspect) myPointAspect=new Prs3d_PointAspect(Aspect_TOM_POINT, occ_color, 20);
-		aisShape->Attributes()->SetPointAspect(myPointAspect); 
-	
-		_occContext->Display(aisShape, Standard_True);
-		_occContext->SetTransparency(aisShape, 1-color.alpha(), Standard_True);
+			_occContext->Display(aisShape, Standard_True);
+			_occContext->SetTransparency(aisShape, 1-color.alpha(), Standard_True);
+		}
+		else if(object->text()!=nullptr)
+		{
+			Handle(AIS_TextLabel) label=new AIS_TextLabel();
+			label->SetText(object->text()->text().c_str());
+			
+			auto color=object->color();
+			auto occ_color=Quantity_Color(color.r(), color.g(), color.b(), Quantity_TOC_RGB);
+			
+			label->SetColor(occ_color);
+			
+			auto pos=object->text()->position();
+			label->SetPosition(gp_Pnt(pos.x(), pos.y(), pos.z()));
+			
+			_occContext->Display(label, Standard_True);
+			
+		}
 	}
 	void QtViewer::removeObject(ViewObject* object)
 	{

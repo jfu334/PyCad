@@ -56,6 +56,7 @@ for i in [outline2, support2, shell2]:
 	i.rotate(0, 0, 90)
 	i.translate(5, -3, 0)
 
+outline2.translate(0, 0, -0.25)
 
 result=[outline1, shell1, outline2, support2, shell2]
 
@@ -69,7 +70,7 @@ Planar wires can be closed to a shell with PyCad.op.wireToShell.
 PyCad.op.filling can be used for non-planar wires. 
 It also allows to specify support wires that define the curvature. 
 
-![Picture](21_shells.jpg)
+![Picture](25_shells.jpg|width=300)
 
 [CODE]
 """

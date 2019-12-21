@@ -90,7 +90,6 @@ def showElement(obj_, view):
 		vobj=PyCad.viewer.ViewObject(obj_)
 		vobj.setColor(obj_.color())
 		view.addObject(vobj)
-		
 	elif(isinstance(obj_, PyCad.GeometryBase)):
 		vobj=PyCad.viewer.ViewObject(obj_)
 		vobj.setColor(PyCad.Color(1, 1, 1, 1))
@@ -99,6 +98,11 @@ def showElement(obj_, view):
 		vobj=PyCad.viewer.ViewObject(PyCad.gen.point_3d(obj_));
 		vobj.setColor(PyCad.Color(1, 0, 0, 1))
 		view.addObject(vobj)
+	elif(isinstance(obj_, PyCad.annotation.Text)):
+		vobj=PyCad.viewer.ViewObject(obj_)
+		vobj.setColor(obj_.color())
+		view.addObject(vobj)
+		
 	elif(isinstance(obj_, PyCad.ObjectGroup)):
 		for i in obj_.objects():
 			showElement(i, view)

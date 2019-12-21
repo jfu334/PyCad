@@ -39,7 +39,7 @@ result=[outline1, shell1, solid1, shell2, solid2]
 doc="""
 ## Extrusion
 
-![Picture](30_extrusion.jpg)
+![Picture](30_extrusion.jpg|width=300)
 
 Extrusion of a wire leads to a shell. Extrusion of a shell leads to a solid. 
 

@@ -250,6 +250,29 @@ namespace PyCadCpp
 		};
 	};
 	
+	namespace annotation
+	{
+		class Text
+		{
+			%TypeHeaderCode
+			#include "objects.h"
+			%End
+			
+		public:
+			Text();
+			Text(Vec3 position, std::string text);
+			
+			Vec3 position() const;
+			void setPosition(Vec3 position);
+			
+			std::string text() const;
+			void setText(std::string text);
+			
+			Color color() const;
+			void setColor(Color color);
+		};
+	};
+	
 	
 	namespace gen
 	{
@@ -390,6 +413,8 @@ namespace PyCadCpp
 		{
 		public:
 			ViewObject(PyCadCpp::GeometryBase* object);
+			ViewObject(PyCadCpp::annotation::Text* text);
+			
 			PyCadCpp::GeometryBase* object();
 			
 			PyCadCpp::Color color();
