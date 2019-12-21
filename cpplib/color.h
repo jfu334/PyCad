@@ -26,8 +26,8 @@ namespace PyCadCpp
 		const Color blue=Color(0, 0, 1);
 		
 		const Color yellow=Color(1, 1, 0);
-		const Color cyan=Color(1, 0, 1);
-		const Color pink=Color(0, 1, 1);
+		const Color cyan=Color(0, 1, 1);
+		const Color pink=Color(1, 0, 1);
 		
 	}
 }
